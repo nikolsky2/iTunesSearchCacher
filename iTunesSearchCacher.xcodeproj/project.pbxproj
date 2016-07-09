@@ -15,6 +15,8 @@
 		F54BB57A1D30E3C9004411A1 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB5791D30E3C9004411A1 /* CoreDataStack.swift */; };
 		F54BB57C1D30E40F004411A1 /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB57B1D30E40F004411A1 /* AppManager.swift */; };
 		F54BB57E1D30E42F004411A1 /* Networking.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB57D1D30E42F004411A1 /* Networking.swift */; };
+		F54BB5801D31249C004411A1 /* iTunesJSONResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB57F1D31249C004411A1 /* iTunesJSONResult.swift */; };
+		F54BB5821D312D25004411A1 /* RawResultsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB5811D312D25004411A1 /* RawResultsParser.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +30,8 @@
 		F54BB5791D30E3C9004411A1 /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 		F54BB57B1D30E40F004411A1 /* AppManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
 		F54BB57D1D30E42F004411A1 /* Networking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Networking.swift; sourceTree = "<group>"; };
+		F54BB57F1D31249C004411A1 /* iTunesJSONResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iTunesJSONResult.swift; sourceTree = "<group>"; };
+		F54BB5811D312D25004411A1 /* RawResultsParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RawResultsParser.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +73,8 @@
 				F54BB5791D30E3C9004411A1 /* CoreDataStack.swift */,
 				F54BB57B1D30E40F004411A1 /* AppManager.swift */,
 				F54BB57D1D30E42F004411A1 /* Networking.swift */,
+				F54BB57F1D31249C004411A1 /* iTunesJSONResult.swift */,
+				F54BB5811D312D25004411A1 /* RawResultsParser.swift */,
 			);
 			path = iTunesSearchCacher;
 			sourceTree = "<group>";
@@ -149,6 +155,8 @@
 				F54BB56A1D30E2F0004411A1 /* ViewController.swift in Sources */,
 				F54BB5681D30E2F0004411A1 /* AppDelegate.swift in Sources */,
 				F54BB57C1D30E40F004411A1 /* AppManager.swift in Sources */,
+				F54BB5801D31249C004411A1 /* iTunesJSONResult.swift in Sources */,
+				F54BB5821D312D25004411A1 /* RawResultsParser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
