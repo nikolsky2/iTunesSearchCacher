@@ -41,6 +41,9 @@ class Networking: NSObject {
     var dataTask: NSURLSessionDataTask!
     
     func fetchRequestWithTerm(term: String, completionBlock:([String: AnyObject])? -> ()) {
+        
+        return
+        
         let session = NSURLSession.sharedSession()
         
         let urlComponents = NSURLComponents(string: fullyQualifiedURLString)!
