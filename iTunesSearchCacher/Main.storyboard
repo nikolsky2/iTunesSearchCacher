@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="xc3-au-52e">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--iTunes Search API-->
+        <scene sceneID="iQb-Vf-qwP">
+            <objects>
+                <viewController id="sAo-ZF-VCV" customClass="SearchPageViewController" customModule="iTunesSearchCacher" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="dCZ-5N-qE7"/>
+                        <viewControllerLayoutGuide type="bottom" id="2Qg-XO-N45"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="hXb-1N-rcB">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="50" translatesAutoresizingMaskIntoConstraints="NO" id="6MW-hR-mIN">
+                                <rect key="frame" x="0.0" y="204.5" width="600" height="191"/>
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iTunesLogo" translatesAutoresizingMaskIntoConstraints="NO" id="WFu-8D-euI">
+                                        <rect key="frame" x="193" y="0.0" width="213" height="61"/>
+                                    </imageView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="egg-3P-eBd">
+                                        <rect key="frame" x="0.0" y="111" width="600" height="80"/>
+                                        <subviews>
+                                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Search" textAlignment="center" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="OdJ-Vu-QJc">
+                                                <rect key="frame" x="0.0" y="0.0" width="600" height="30"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="30" id="Slc-Uz-22h"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <textInputTraits key="textInputTraits"/>
+                                            </textField>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dO2-3b-HqS">
+                                                <rect key="frame" x="251" y="50" width="97" height="30"/>
+                                                <state key="normal" title="iTunes Search"/>
+                                                <connections>
+                                                    <segue destination="RY5-3N-ms4" kind="show" id="gke-S6-jmK"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="OdJ-Vu-QJc" firstAttribute="leading" secondItem="egg-3P-eBd" secondAttribute="leadingMargin" id="84k-r2-RFl"/>
+                                            <constraint firstAttribute="trailingMargin" secondItem="OdJ-Vu-QJc" secondAttribute="trailing" id="QFc-4O-43g"/>
+                                        </constraints>
+                                    </stackView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="egg-3P-eBd" secondAttribute="trailing" id="dXc-Zr-TSr"/>
+                                    <constraint firstItem="egg-3P-eBd" firstAttribute="leading" secondItem="6MW-hR-mIN" secondAttribute="leading" id="xYc-R7-t6m"/>
+                                </constraints>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="6MW-hR-mIN" secondAttribute="trailing" id="Ewk-aA-m6r"/>
+                            <constraint firstItem="6MW-hR-mIN" firstAttribute="centerY" secondItem="hXb-1N-rcB" secondAttribute="centerY" id="Fuv-82-DRO"/>
+                            <constraint firstItem="6MW-hR-mIN" firstAttribute="centerX" secondItem="hXb-1N-rcB" secondAttribute="centerX" id="Sr7-G4-btf"/>
+                            <constraint firstItem="6MW-hR-mIN" firstAttribute="leading" secondItem="hXb-1N-rcB" secondAttribute="leading" id="w38-aQ-iBP"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="iTunes Search API" id="BoW-Xb-bPH"/>
+                    <connections>
+                        <outlet property="searchButton" destination="dO2-3b-HqS" id="80L-96-x5A"/>
+                        <outlet property="searchTextField" destination="OdJ-Vu-QJc" id="I8F-TG-Li6"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="4re-3O-2aI" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1166" y="409"/>
+        </scene>
+        <!--Results-->
+        <scene sceneID="rYJ-bd-Npf">
+            <objects>
+                <viewController id="RY5-3N-ms4" customClass="SearchResultsViewController" customModule="iTunesSearchCacher" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="EJB-M4-e6S"/>
+                        <viewControllerLayoutGuide type="bottom" id="CO2-lt-mdv"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="4g5-DK-wJi">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="Results" id="fWI-zh-L6k"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="awc-7r-tMM" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1926" y="409"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="Wqx-Ih-4Dj">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="xc3-au-52e" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="k3z-2V-yUU">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="sAo-ZF-VCV" kind="relationship" relationship="rootViewController" id="9yw-9K-Y2B"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="BdZ-iB-FIp" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="354" y="409"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="iTunesLogo" width="213" height="61"/>
+    </resources>
+</document>
