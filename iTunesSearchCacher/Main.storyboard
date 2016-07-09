@@ -73,7 +73,7 @@
             </objects>
             <point key="canvasLocation" x="1166" y="409"/>
         </scene>
-        <!--Search Results View Controller-->
+        <!--Results-->
         <scene sceneID="rYJ-bd-Npf">
             <objects>
                 <viewController id="RY5-3N-ms4" customClass="SearchResultsViewController" customModule="iTunesSearchCacher" customModuleProvider="target" sceneMemberID="viewController">
@@ -84,9 +84,43 @@
                     <view key="view" contentMode="scaleToFill" id="4g5-DK-wJi">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uR3-Tf-G65" userLabel="loading view">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <subviews>
+                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="751" verticalCompressionResistancePriority="751" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="3Sz-z0-nZQ">
+                                        <rect key="frame" x="290" y="290" width="20" height="20"/>
+                                    </activityIndicatorView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Loading. Please wait..." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yVk-8V-mBh" userLabel="Msg">
+                                        <rect key="frame" x="20" y="325" width="560" height="18"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="yVk-8V-mBh" firstAttribute="top" secondItem="3Sz-z0-nZQ" secondAttribute="bottom" constant="15" id="0ab-NM-oFR"/>
+                                    <constraint firstItem="3Sz-z0-nZQ" firstAttribute="centerX" secondItem="uR3-Tf-G65" secondAttribute="centerX" id="VEB-2w-ln5"/>
+                                    <constraint firstItem="3Sz-z0-nZQ" firstAttribute="centerY" secondItem="uR3-Tf-G65" secondAttribute="centerY" id="c5G-Nh-kGo"/>
+                                    <constraint firstAttribute="trailing" secondItem="yVk-8V-mBh" secondAttribute="trailing" constant="20" id="v87-yR-1jK"/>
+                                    <constraint firstItem="yVk-8V-mBh" firstAttribute="leading" secondItem="uR3-Tf-G65" secondAttribute="leading" constant="20" id="v8x-81-S5m"/>
+                                </constraints>
+                            </view>
+                            <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mvc-cA-8Eo" userLabel="content view">
+                                <rect key="frame" x="-74" y="9" width="84" height="33"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="uR3-Tf-G65" firstAttribute="leading" secondItem="4g5-DK-wJi" secondAttribute="leading" id="1km-be-fvb"/>
+                            <constraint firstItem="uR3-Tf-G65" firstAttribute="top" secondItem="4g5-DK-wJi" secondAttribute="topMargin" id="ME4-Mz-O8r"/>
+                            <constraint firstAttribute="trailing" secondItem="uR3-Tf-G65" secondAttribute="trailing" id="ODM-uy-cQO"/>
+                            <constraint firstAttribute="bottomMargin" secondItem="uR3-Tf-G65" secondAttribute="bottom" id="tgC-hC-0v1"/>
+                        </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="fWI-zh-L6k"/>
+                    <navigationItem key="navigationItem" title="Results" id="fWI-zh-L6k"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="awc-7r-tMM" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
