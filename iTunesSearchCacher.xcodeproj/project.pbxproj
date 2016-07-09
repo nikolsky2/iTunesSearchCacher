@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F52410521D313DDF00174B89 /* SearchPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52410511D313DDF00174B89 /* SearchPageViewController.swift */; };
+		F52410611D313EE300174B89 /* SearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52410601D313EE300174B89 /* SearchResultsViewController.swift */; };
 		F54BB5681D30E2F0004411A1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB5671D30E2F0004411A1 /* AppDelegate.swift */; };
-		F54BB56A1D30E2F0004411A1 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB5691D30E2F0004411A1 /* ViewController.swift */; };
 		F54BB56D1D30E2F0004411A1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F54BB56B1D30E2F0004411A1 /* Main.storyboard */; };
 		F54BB56F1D30E2F0004411A1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F54BB56E1D30E2F0004411A1 /* Assets.xcassets */; };
 		F54BB5721D30E2F0004411A1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F54BB5701D30E2F0004411A1 /* LaunchScreen.storyboard */; };
@@ -20,9 +21,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		F52410511D313DDF00174B89 /* SearchPageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchPageViewController.swift; sourceTree = "<group>"; };
+		F52410601D313EE300174B89 /* SearchResultsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsViewController.swift; sourceTree = "<group>"; };
 		F54BB5641D30E2F0004411A1 /* iTunesSearchCacher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iTunesSearchCacher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F54BB5671D30E2F0004411A1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		F54BB5691D30E2F0004411A1 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		F54BB56C1D30E2F0004411A1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		F54BB56E1D30E2F0004411A1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F54BB5711D30E2F0004411A1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -45,6 +47,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F52410501D313D9F00174B89 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				F54BB57F1D31249C004411A1 /* iTunesJSONResult.swift */,
+				F54BB5811D312D25004411A1 /* RawResultsParser.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
 		F54BB55B1D30E2F0004411A1 = {
 			isa = PBXGroup;
 			children = (
@@ -65,7 +76,8 @@
 			isa = PBXGroup;
 			children = (
 				F54BB5671D30E2F0004411A1 /* AppDelegate.swift */,
-				F54BB5691D30E2F0004411A1 /* ViewController.swift */,
+				F52410511D313DDF00174B89 /* SearchPageViewController.swift */,
+				F52410601D313EE300174B89 /* SearchResultsViewController.swift */,
 				F54BB56B1D30E2F0004411A1 /* Main.storyboard */,
 				F54BB56E1D30E2F0004411A1 /* Assets.xcassets */,
 				F54BB5701D30E2F0004411A1 /* LaunchScreen.storyboard */,
@@ -73,8 +85,7 @@
 				F54BB5791D30E3C9004411A1 /* CoreDataStack.swift */,
 				F54BB57B1D30E40F004411A1 /* AppManager.swift */,
 				F54BB57D1D30E42F004411A1 /* Networking.swift */,
-				F54BB57F1D31249C004411A1 /* iTunesJSONResult.swift */,
-				F54BB5811D312D25004411A1 /* RawResultsParser.swift */,
+				F52410501D313D9F00174B89 /* Model */,
 			);
 			path = iTunesSearchCacher;
 			sourceTree = "<group>";
@@ -151,10 +162,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				F54BB57A1D30E3C9004411A1 /* CoreDataStack.swift in Sources */,
+				F52410611D313EE300174B89 /* SearchResultsViewController.swift in Sources */,
 				F54BB57E1D30E42F004411A1 /* Networking.swift in Sources */,
-				F54BB56A1D30E2F0004411A1 /* ViewController.swift in Sources */,
 				F54BB5681D30E2F0004411A1 /* AppDelegate.swift in Sources */,
 				F54BB57C1D30E40F004411A1 /* AppManager.swift in Sources */,
+				F52410521D313DDF00174B89 /* SearchPageViewController.swift in Sources */,
 				F54BB5801D31249C004411A1 /* iTunesJSONResult.swift in Sources */,
 				F54BB5821D312D25004411A1 /* RawResultsParser.swift in Sources */,
 			);
@@ -308,6 +320,7 @@
 				F54BB5781D30E2F0004411A1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
