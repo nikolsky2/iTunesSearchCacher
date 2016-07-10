@@ -79,12 +79,12 @@
 				F52410511D313DDF00174B89 /* SearchPageViewController.swift */,
 				F52410601D313EE300174B89 /* SearchResultsViewController.swift */,
 				F58517BB1D31480C0004DB43 /* Main.storyboard */,
-				F54BB56E1D30E2F0004411A1 /* Assets.xcassets */,
 				F54BB5701D30E2F0004411A1 /* LaunchScreen.storyboard */,
-				F54BB5731D30E2F0004411A1 /* Info.plist */,
 				F54BB5791D30E3C9004411A1 /* CoreDataStack.swift */,
 				F54BB57B1D30E40F004411A1 /* AppManager.swift */,
 				F54BB57D1D30E42F004411A1 /* Networking.swift */,
+				F54BB56E1D30E2F0004411A1 /* Assets.xcassets */,
+				F54BB5731D30E2F0004411A1 /* Info.plist */,
 				F52410501D313D9F00174B89 /* Model */,
 			);
 			path = iTunesSearchCacher;

@@ -16,12 +16,15 @@ class SearchPageViewController: UIViewController {
     
     @IBOutlet private weak var searchTextField: UITextField!
     @IBOutlet private weak var searchButton: UIButton!
+    @IBOutlet private weak var searchHistoryButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         searchTextField.addTarget(self, action: #selector(SearchPageViewController.searchTextFieldDidChange), forControlEvents: .EditingChanged)
+        
         searchButton.enabled = false
+        searchHistoryButton.enabled = false
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
