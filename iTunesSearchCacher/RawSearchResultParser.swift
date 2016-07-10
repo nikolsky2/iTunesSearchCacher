@@ -8,11 +8,10 @@
 
 import Foundation
 
-class RawResultsParser {
-    func parseResults(json: [String: AnyObject]) {
+class RawSearchResultParser {
+    func parseResults(json: [String: AnyObject]) -> [iTunesJSONResult] {
         
         if let rawResults = json["results"] as? [[String: AnyObject]] {
-            
             let results = rawResults.flatMap ({
                 (rawResult: [String : AnyObject]) -> iTunesJSONResult? in
                 
@@ -22,10 +21,9 @@ class RawResultsParser {
                     return nil
                 }
             })
-            print(results)
+            return results
         }
         
-        
-        
+        return []
     }
 }

@@ -8,29 +8,26 @@
 
 import UIKit
 
-protocol SearchResultsDataSource: class {
-    
-    
+protocol ReusableView: class {}
+extension ReusableView where Self: UIView {
+    static var reuseIdentifier: String {
+        return String(self)
+    }
 }
-
-protocol SearchResultsDelegate: class {
-    
-    
-}
+extension UITableViewCell: ReusableView { }
 
 class SearchResultsViewController: UIViewController {
 
     var searchTerm: String!
-    weak var searchResultsDataSource: SearchResultsDataSource?
+    var dataSource = SearchResultsDataSource()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         title = searchTerm
         
-        //startRequest here
-        
-    
+        dataSource.delegate = self
+        dataSource.searchWithTerm(searchTerm)
     }
 }
 

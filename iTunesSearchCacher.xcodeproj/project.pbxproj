@@ -14,10 +14,10 @@
 		F54BB5721D30E2F0004411A1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F54BB5701D30E2F0004411A1 /* LaunchScreen.storyboard */; };
 		F54BB57A1D30E3C9004411A1 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB5791D30E3C9004411A1 /* CoreDataStack.swift */; };
 		F54BB57C1D30E40F004411A1 /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB57B1D30E40F004411A1 /* AppManager.swift */; };
-		F54BB57E1D30E42F004411A1 /* Networking.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB57D1D30E42F004411A1 /* Networking.swift */; };
 		F54BB5801D31249C004411A1 /* iTunesJSONResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB57F1D31249C004411A1 /* iTunesJSONResult.swift */; };
-		F54BB5821D312D25004411A1 /* RawResultsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB5811D312D25004411A1 /* RawResultsParser.swift */; };
+		F54BB5821D312D25004411A1 /* RawSearchResultParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB5811D312D25004411A1 /* RawSearchResultParser.swift */; };
 		F58517BC1D31480C0004DB43 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F58517BB1D31480C0004DB43 /* Main.storyboard */; };
+		F5F51A431D31F1E700EB8135 /* SearchResultsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F51A421D31F1E700EB8135 /* SearchResultsDataSource.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,10 +30,10 @@
 		F54BB5731D30E2F0004411A1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F54BB5791D30E3C9004411A1 /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 		F54BB57B1D30E40F004411A1 /* AppManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
-		F54BB57D1D30E42F004411A1 /* Networking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Networking.swift; sourceTree = "<group>"; };
 		F54BB57F1D31249C004411A1 /* iTunesJSONResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iTunesJSONResult.swift; sourceTree = "<group>"; };
-		F54BB5811D312D25004411A1 /* RawResultsParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RawResultsParser.swift; sourceTree = "<group>"; };
+		F54BB5811D312D25004411A1 /* RawSearchResultParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RawSearchResultParser.swift; sourceTree = "<group>"; };
 		F58517BB1D31480C0004DB43 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		F5F51A421D31F1E700EB8135 /* SearchResultsDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsDataSource.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,8 +50,9 @@
 		F52410501D313D9F00174B89 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				F5F51A421D31F1E700EB8135 /* SearchResultsDataSource.swift */,
 				F54BB57F1D31249C004411A1 /* iTunesJSONResult.swift */,
-				F54BB5811D312D25004411A1 /* RawResultsParser.swift */,
+				F54BB5811D312D25004411A1 /* RawSearchResultParser.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -75,19 +76,34 @@
 		F54BB5661D30E2F0004411A1 /* iTunesSearchCacher */ = {
 			isa = PBXGroup;
 			children = (
-				F54BB5671D30E2F0004411A1 /* AppDelegate.swift */,
 				F52410511D313DDF00174B89 /* SearchPageViewController.swift */,
-				F52410601D313EE300174B89 /* SearchResultsViewController.swift */,
+				F5F51A451D31F20600EB8135 /* Results */,
 				F58517BB1D31480C0004DB43 /* Main.storyboard */,
 				F54BB5701D30E2F0004411A1 /* LaunchScreen.storyboard */,
-				F54BB5791D30E3C9004411A1 /* CoreDataStack.swift */,
-				F54BB57B1D30E40F004411A1 /* AppManager.swift */,
-				F54BB57D1D30E42F004411A1 /* Networking.swift */,
+				F5F51A461D31F3A300EB8135 /* AppManagment */,
 				F54BB56E1D30E2F0004411A1 /* Assets.xcassets */,
 				F54BB5731D30E2F0004411A1 /* Info.plist */,
-				F52410501D313D9F00174B89 /* Model */,
 			);
 			path = iTunesSearchCacher;
+			sourceTree = "<group>";
+		};
+		F5F51A451D31F20600EB8135 /* Results */ = {
+			isa = PBXGroup;
+			children = (
+				F52410601D313EE300174B89 /* SearchResultsViewController.swift */,
+				F52410501D313D9F00174B89 /* Model */,
+			);
+			name = Results;
+			sourceTree = "<group>";
+		};
+		F5F51A461D31F3A300EB8135 /* AppManagment */ = {
+			isa = PBXGroup;
+			children = (
+				F54BB5671D30E2F0004411A1 /* AppDelegate.swift */,
+				F54BB57B1D30E40F004411A1 /* AppManager.swift */,
+				F54BB5791D30E3C9004411A1 /* CoreDataStack.swift */,
+			);
+			name = AppManagment;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -163,12 +179,12 @@
 			files = (
 				F54BB57A1D30E3C9004411A1 /* CoreDataStack.swift in Sources */,
 				F52410611D313EE300174B89 /* SearchResultsViewController.swift in Sources */,
-				F54BB57E1D30E42F004411A1 /* Networking.swift in Sources */,
 				F54BB5681D30E2F0004411A1 /* AppDelegate.swift in Sources */,
 				F54BB57C1D30E40F004411A1 /* AppManager.swift in Sources */,
 				F52410521D313DDF00174B89 /* SearchPageViewController.swift in Sources */,
 				F54BB5801D31249C004411A1 /* iTunesJSONResult.swift in Sources */,
-				F54BB5821D312D25004411A1 /* RawResultsParser.swift in Sources */,
+				F5F51A431D31F1E700EB8135 /* SearchResultsDataSource.swift in Sources */,
+				F54BB5821D312D25004411A1 /* RawSearchResultParser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

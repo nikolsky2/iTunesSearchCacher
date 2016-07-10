@@ -1,8 +1,8 @@
 //
-//  Networking.swift
+//  SearchResultsDataSource.swift
 //  iTunesSearchCacher
 //
-//  Created by Sergey Nikolsky on 9/07/2016.
+//  Created by Sergey Nikolsky on 10/07/2016.
 //  Copyright © 2016 happyTuna. All rights reserved.
 //
 
@@ -18,16 +18,16 @@ import Foundation
  
  */
 
-let fullyQualifiedURLString = "https://itunes.apple.com/search?"
+private let fullyQualifiedURLString = "https://itunes.apple.com/search?"
 
-enum iTunesParameterKey: String {
+private enum iTunesParameterKey: String {
     case term = "term"
     case country = "country"
     case media = "media"
     case entity = "entity"
 }
 
-enum EntitiesParameterKey: String {
+private enum EntitiesParameterKey: String {
     case movie = "movie"
     case podcast = "podcast"
     case music = "music"
@@ -36,13 +36,28 @@ enum EntitiesParameterKey: String {
     case all = "all"
 }
 
-class Networking: NSObject {
+protocol SearchResultsDelegate: class {
     
-    var dataTask: NSURLSessionDataTask!
     
-    func fetchRequestWithTerm(term: String, completionBlock:([String: AnyObject])? -> ()) {
-        
-        return
+}
+
+class SearchResultsDataSource: NSObject {
+    
+    weak var delegate: SearchResultsDelegate?
+    private var dataTask: NSURLSessionDataTask?
+    
+    func searchWithTerm(term: String) {
+        let rawParser = RawSearchResultParser()
+        fetchRequestWithTerm(term) { (rawDict: ([String : AnyObject])?) in
+            if let json = rawDict {
+                let iTunesItems = rawParser.parseResults(json)
+                print(iTunesItems)
+            }
+        }
+    }
+    
+    private func fetchRequestWithTerm(term: String, completionBlock:([String: AnyObject])? -> ()) {
+        dataTask?.cancel()
         
         let session = NSURLSession.sharedSession()
         
@@ -64,14 +79,10 @@ class Networking: NSObject {
                     completionBlock(nil)
                 }
             }
-            
         }
         
         
-        dataTask.resume()
+        dataTask?.resume()
     }
-    
-
-    
     
 }

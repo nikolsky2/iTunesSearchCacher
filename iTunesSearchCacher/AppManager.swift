@@ -12,7 +12,6 @@ import UIKit
 class AppManager: NSObject {
     
     private var coreDataStack: CoreDataStack!
-    private var networking: Networking!
     
     class func shared() -> AppManager {
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
@@ -26,7 +25,6 @@ class AppManager: NSObject {
     
     func didFinishLaunching() {
         coreDataStack = CoreDataStack()
-        networking = Networking()
         
         let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
         let navViewController = mainStoryBoard.instantiateInitialViewController()
