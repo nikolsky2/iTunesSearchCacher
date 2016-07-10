@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CoreData
 
 /*
  
@@ -36,23 +37,37 @@ private enum EntitiesParameterKey: String {
     case all = "all"
 }
 
-protocol SearchResultsDelegate: class {
+protocol SearchResultsDataSourceDelegate: class {
+    func didReceiveResults()
+}
+
+extension SearchResultsDataSource {
+    var numberOfItems: Int {
+        return itunesItems.count
+    }
     
-    
+    subscript(index: Int) -> iTunesJSONResult {
+        get {
+            return itunesItems[index]
+        }
+    }
 }
 
 class SearchResultsDataSource: NSObject {
     
-    weak var delegate: SearchResultsDelegate?
+    weak var delegate: SearchResultsDataSourceDelegate?
     private var dataTask: NSURLSessionDataTask?
+    private var fetchedResultsController: NSFetchedResultsController?
+    private var itunesItems = [iTunesJSONResult]()
     
     func searchWithTerm(term: String) {
         let rawParser = RawSearchResultParser()
-        fetchRequestWithTerm(term) { (rawDict: ([String : AnyObject])?) in
+        fetchRequestWithTerm(term) { [unowned self] (rawDict: ([String : AnyObject])?) in
             if let json = rawDict {
-                let iTunesItems = rawParser.parseResults(json)
-                print(iTunesItems)
+                self.itunesItems = rawParser.parseResults(json)
             }
+            
+            self.delegate?.didReceiveResults()
         }
     }
     
