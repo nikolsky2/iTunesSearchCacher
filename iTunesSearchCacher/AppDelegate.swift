@@ -11,13 +11,11 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    var appManager: AppManager!
-    var window: UIWindow?
-
-
+    var appManager = AppManager()
+    
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
        
-        appManager = AppManager()
+        appManager.didFinishLaunching()
         
         return true
     }

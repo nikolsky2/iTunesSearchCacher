@@ -8,13 +8,32 @@
 
 import UIKit
 
+protocol SearchResultsDataSource: class {
+    
+    
+}
+
+protocol SearchResultsDelegate: class {
+    
+    
+}
+
 class SearchResultsViewController: UIViewController {
-    
-    
+
+    var searchTerm: String!
+    weak var searchResultsDataSource: SearchResultsDataSource?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        title = searchTerm
+        
+        //startRequest here
+        
     
     }
+}
+
+extension SearchResultsViewController: SearchResultsDelegate {
+    
 }

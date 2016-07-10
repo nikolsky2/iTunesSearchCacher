@@ -7,26 +7,30 @@
 //
 
 import Foundation
+import UIKit
 
 class AppManager: NSObject {
     
-    private let coreDataStack: CoreDataStack
-    private let networking: Networking
+    private var coreDataStack: CoreDataStack!
+    private var networking: Networking!
     
-    override init() {
+    class func shared() -> AppManager {
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        return appDelegate.appManager
+    }
+    
+    lazy var window: UIWindow = {
+        let window = UIWindow(frame: UIScreen.mainScreen().bounds)
+        return window
+    }()
+    
+    func didFinishLaunching() {
         coreDataStack = CoreDataStack()
         networking = Networking()
         
-        let rawResultsParser = RawResultsParser()
-        
-        super.init()
-        
-        networking.fetchRequestWithTerm("hello") { (rawDict: ([String : AnyObject])?) in
-            if let json = rawDict {
-                rawResultsParser.parseResults(json)
-            }
-        }
-        
-        
+        let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
+        let navViewController = mainStoryBoard.instantiateInitialViewController()
+        window.rootViewController = navViewController
+        window.makeKeyAndVisible()
     }
 }

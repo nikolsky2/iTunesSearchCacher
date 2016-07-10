@@ -30,7 +30,7 @@ class SearchPageViewController: UIViewController {
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == Segues.SearchResultsViewControllerId.rawValue {
             let controller = segue.destinationViewController as! SearchResultsViewController
-            controller.title = searchTextField.text
+            controller.searchTerm = searchTextField.text
         }
     }
     
