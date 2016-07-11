@@ -100,11 +100,22 @@ class SearchResultsDataSource: NSObject {
                 
                 for rawValue in rawResults {
                     
-                    var artistEntity: ArtistEntity!
                     if let artistId = rawValue[RawArtistEntity.artistId] as? NSNumber,
                         let artistName = rawValue[RawArtistEntity.artistName] as? String,
-                        let artistViewUrl = rawValue[RawArtistEntity.artistViewUrl] as? String {
+                        let artistViewUrl = rawValue[RawArtistEntity.artistViewUrl] as? String,
+                        let artworkUrl = rawValue[RawCollectionEntity.artworkUrl] as? String,
                         
+                        let collectionId = rawValue[RawCollectionEntity.collectionId] as? NSNumber,
+                        let collectionName = rawValue[RawCollectionEntity.collectionName] as? String,
+                        let collectionViewUrl = rawValue[RawCollectionEntity.collectionViewUrl] as? String,
+                        let primaryGenreName = rawValue[RawCollectionEntity.primaryGenreName] as? String,
+                    
+                        let previewUrl = rawValue[RawTrackEntity.previewUrl] as? String,
+                        let trackId = rawValue[RawTrackEntity.trackId] as? NSNumber,
+                        let trackName = rawValue[RawTrackEntity.trackName] as? String,
+                        let trackNumber = rawValue[RawTrackEntity.trackNumber] as? NSNumber {
+                        
+                        var artistEntity: ArtistEntity!
                         if let artist = artists[artistId.intValue] {
                             artistEntity = artist
                         } else {
@@ -114,18 +125,8 @@ class SearchResultsDataSource: NSObject {
                             artist.artistViewUrl = artistViewUrl
                             artistEntity = artist
                         }
-                    } else {
-                        //Fail gracefully
-                        break
-                    }
-                    
-                    var collectionEntity: CollectionEntity!
-                    if let artworkUrl = rawValue[RawCollectionEntity.artworkUrl] as? String,
-                        let collectionId = rawValue[RawCollectionEntity.collectionId] as? NSNumber,
-                        let collectionName = rawValue[RawCollectionEntity.collectionName] as? String,
-                        let collectionViewUrl = rawValue[RawCollectionEntity.collectionViewUrl] as? String,
-                        let primaryGenreName = rawValue[RawCollectionEntity.primaryGenreName] as? String {
                         
+                        var collectionEntity: CollectionEntity!
                         if let collection = collections[collectionId.intValue] {
                             collectionEntity = collection
                         } else {
@@ -138,34 +139,25 @@ class SearchResultsDataSource: NSObject {
                             collection.artist = artistEntity
                             collectionEntity = collection
                         }
-                    } else {
-                        //Fail gracefully
-                        break
-                    }
-                    
-                    var collections = Array(artistEntity.collections)
-                    collections.append(collectionEntity)
-                    artistEntity.collections = NSSet(array: collections)
-                    
-                    let trackEntity: TrackEntity = self.mainContext.createEntity()
-                    if let previewUrl = rawValue[RawTrackEntity.previewUrl] as? String,
-                        let trackId = rawValue[RawTrackEntity.trackId] as? NSNumber,
-                        let trackName = rawValue[RawTrackEntity.trackName] as? String,
-                        let trackNumber = rawValue[RawTrackEntity.trackNumber] as? NSNumber {
+                        var collections = Array(artistEntity.collections)
+                        collections.append(collectionEntity)
+                        artistEntity.collections = NSSet(array: collections)
                         
+                        let trackEntity: TrackEntity = self.mainContext.createEntity()
                         trackEntity.previewUrl = previewUrl
                         trackEntity.trackId = trackId.intValue
                         trackEntity.trackName = trackName
                         trackEntity.trackNumber = trackNumber.intValue
                         
+                        var tracks = Array(collectionEntity.tracks)
+                        tracks.append(trackEntity)
+                        collectionEntity.tracks = NSSet(array: tracks)
+                        
+                        
                     } else {
-                        //Fail gracefully
+                        //Fail silently on this item
                         break
                     }
-                    
-                    var tracks = Array(collectionEntity.tracks)
-                    tracks.append(trackEntity)
-                    collectionEntity.tracks = NSSet(array: tracks)
                 }
                 
                 
