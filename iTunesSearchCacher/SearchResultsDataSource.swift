@@ -21,20 +21,20 @@ import CoreData
 
 private let fullyQualifiedURLString = "https://itunes.apple.com/search?"
 
-private enum iTunesParameterKey: String {
-    case term = "term"
-    case country = "country"
-    case media = "media"
-    case entity = "entity"
+struct iTunesParameterKey {
+    static let term = "term"
+    static let country = "country"
+    static let media = "media"
+    static let entity = "entity"
 }
 
-private enum EntitiesParameterKey: String {
-    case movie = "movie"
-    case podcast = "podcast"
-    case music = "music"
-    case musicVideo = "musicVideo"
-    case shortFilm = "shortFilm"
-    case all = "all"
+struct EntitiesParameterKey {
+    static let movie = "movie"
+    static let podcast = "podcast"
+    static let music = "music"
+    static let musicVideo = "musicVideo"
+    static let shortFilm = "shortFilm"
+    static let all = "all"
 }
 
 protocol SearchResultsDataSourceDelegate: class {
@@ -60,6 +60,10 @@ class SearchResultsDataSource: NSObject {
     private var fetchedResultsController: NSFetchedResultsController?
     private var itunesItems = [iTunesJSONResult]()
     
+    override init() {
+        
+    }
+    
     func searchWithTerm(term: String) {
         let rawParser = RawSearchResultParser()
         fetchRequestWithTerm(term) { [unowned self] (rawDict: ([String : AnyObject])?) in
@@ -67,7 +71,9 @@ class SearchResultsDataSource: NSObject {
                 self.itunesItems = rawParser.parseResults(json)
             }
             
-            self.delegate?.didReceiveResults()
+            dispatch_async(dispatch_get_main_queue()) {
+                self.delegate?.didReceiveResults()
+            }
         }
     }
     
@@ -77,22 +83,20 @@ class SearchResultsDataSource: NSObject {
         let session = NSURLSession.sharedSession()
         
         let urlComponents = NSURLComponents(string: fullyQualifiedURLString)!
-        let termQuery = NSURLQueryItem(name: iTunesParameterKey.term.rawValue, value: term)
+        let termQuery = NSURLQueryItem(name: iTunesParameterKey.term, value: term)
         urlComponents.queryItems = [termQuery]
         
         dataTask = session.dataTaskWithRequest(NSURLRequest(URL: urlComponents.URL!)) { (data: NSData?, response: NSURLResponse?, error: NSError?) in
             
             do {
                 if let d = data, rawDict = try NSJSONSerialization.JSONObjectWithData(d, options: []) as? [String: AnyObject] {
-                    dispatch_async(dispatch_get_main_queue()) {
-                        completionBlock(rawDict)
-                    }
+                    completionBlock(rawDict)
+                } else {
+                    completionBlock(nil)
                 }
             }
             catch {
-                dispatch_async(dispatch_get_main_queue()) {
-                    completionBlock(nil)
-                }
+                completionBlock(nil)
             }
         }
         

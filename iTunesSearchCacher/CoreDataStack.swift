@@ -26,7 +26,7 @@ class CoreDataStack {
         
         var failureReason = "There was an error creating or loading the application's saved data."
         do {
-            try coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: nil)
+            try coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: CoreDataStack.storeOptions)
         } catch {
             
             var dict = [String: AnyObject]()
@@ -42,10 +42,20 @@ class CoreDataStack {
         return coordinator
     }()
     
+    private class var storeOptions: [String: AnyObject] {
+        return [
+            NSMigratePersistentStoresAutomaticallyOption: true,
+            NSInferMappingModelAutomaticallyOption: true,
+            NSSQLitePragmasOption : ["journal_mode" : "DELETE"]
+        ]
+    }
+    
     lazy var mainContext: NSManagedObjectContext = {
         let coordinator = self.persistentStoreCoordinator
         var mainContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType)
         mainContext.persistentStoreCoordinator = coordinator
+        mainContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        
         return mainContext
     }()
 }
