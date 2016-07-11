@@ -9,6 +9,20 @@
 import Foundation
 import CoreData
 
+extension NSManagedObject {
+    class var entityName: String {
+        return "\(self)"
+    }
+}
+
+extension NSManagedObjectContext {
+    func createEntity<EntityType: NSManagedObject>() -> EntityType {
+        let object = NSEntityDescription.insertNewObjectForEntityForName(EntityType.entityName, inManagedObjectContext: self) as! EntityType
+        
+        return object
+    }
+}
+
 class CoreDataStack {
     lazy var applicationDocumentsDirectory: NSURL = {
         let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)

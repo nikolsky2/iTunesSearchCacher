@@ -9,6 +9,11 @@
 import Foundation
 import CoreData
 
+struct RawArtistEntity {
+    static let artistId         = "artistId"
+    static let artistName       = "artistName"
+    static let artistViewUrl    = "artistViewUrl"
+}
 
 class ArtistEntity: NSManagedObject {
 

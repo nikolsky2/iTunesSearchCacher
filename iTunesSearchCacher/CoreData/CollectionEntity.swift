@@ -9,9 +9,15 @@
 import Foundation
 import CoreData
 
+struct RawCollectionEntity {
+    static let artworkUrl           = "artworkUrl"
+    static let collectionId         = "collectionId"
+    static let collectionName       = "collectionName"
+    static let collectionViewUrl    = "collectionViewUrl"
+    static let primaryGenreName     = "primaryGenreName"
+}
 
 class CollectionEntity: NSManagedObject {
 
-// Insert code here to add functionality to your managed object subclass
 
 }

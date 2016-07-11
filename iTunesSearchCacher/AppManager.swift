@@ -8,10 +8,14 @@
 
 import Foundation
 import UIKit
+import CoreData
 
 class AppManager: NSObject {
     
     private var coreDataStack: CoreDataStack!
+    var mainContext: NSManagedObjectContext {
+        return coreDataStack.mainContext
+    }
     
     class func shared() -> AppManager {
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate

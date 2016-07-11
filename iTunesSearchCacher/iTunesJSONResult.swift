@@ -46,7 +46,7 @@ struct iTunesJSONResult {
 
 extension iTunesJSONResult: RawRepresentable {
     init?(rawValue: [String: AnyObject]) {
-        if let rawKind = rawValue[iTunesJSONResultKey.kind] as? String , let kind = iTunesSearchTermKind(rawValue: rawKind),
+        if let rawKind = rawValue[iTunesJSONResultKey.kind] as? String, let kind = iTunesSearchTermKind(rawValue: rawKind),
             let artistId = rawValue[iTunesJSONResultKey.artistId] as? NSNumber,
             let trackId = rawValue[iTunesJSONResultKey.trackId] as? NSNumber,
             

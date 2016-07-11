@@ -17,6 +17,6 @@ extension ArtistEntity {
     @NSManaged var artistId: Int32
     @NSManaged var artistName: String
     @NSManaged var artistViewUrl: String
-    @NSManaged var collections: NSSet?
+    @NSManaged var collections: NSSet
 
 }

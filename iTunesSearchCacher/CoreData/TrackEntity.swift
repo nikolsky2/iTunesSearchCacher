@@ -9,9 +9,14 @@
 import Foundation
 import CoreData
 
+struct RawTrackEntity {
+    static let previewUrl   = "previewUrl"
+    static let trackId      = "trackId"
+    static let trackName    = "trackName"
+    static let trackNumber  = "trackNumber"
+}
 
 class TrackEntity: NSManagedObject {
 
-// Insert code here to add functionality to your managed object subclass
 
 }
