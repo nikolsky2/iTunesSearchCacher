@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 
 struct RawCollectionEntity {
-    static let artworkUrl           = "artworkUrl"
+    static let artworkUrl           = "artworkUrl100"
     static let collectionId         = "collectionId"
     static let collectionName       = "collectionName"
     static let collectionViewUrl    = "collectionViewUrl"

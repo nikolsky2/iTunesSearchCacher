@@ -26,6 +26,7 @@ struct iTunesParameterKey {
     static let country = "country"
     static let media = "media"
     static let entity = "entity"
+    static let limit = "limit"
 }
 
 struct EntitiesParameterKey {
@@ -57,7 +58,10 @@ class SearchResultsDataSource: NSObject {
     
     weak var delegate: SearchResultsDataSourceDelegate?
     private var dataTask: NSURLSessionDataTask?
+    
+    //will notify
     private var fetchedResultsController: NSFetchedResultsController?
+    
     private var itunesItems = [iTunesJSONResult]()
     private let mainContext: NSManagedObjectContext
     
@@ -66,28 +70,23 @@ class SearchResultsDataSource: NSObject {
         super.init()
     }
     
-//    private func createEntity<EntityType: NSManagedObject>() -> EntityType {
-//        let object = NSEntityDescription.insertNewObjectForEntityForName(EntityType.entityName, inManagedObjectContext: mainContext) as! EntityType
-//        
-//        return object
-//    }
-    
     func searchWithTerm(term: String) {
-        //let rawParser = RawSearchResultParser()
+        
+        //TODO: check the cache otherwise cache the term
+        
+        
         fetchRequestWithTerm(term) { [unowned self] (rawDict: ([String : AnyObject])?) in
             if let json = rawDict {
                 self.saveDataFromNetworkWith(json)
-//                self.itunesItems = rawParser.parseResults(json)
             }
             
-//            dispatch_async(dispatch_get_main_queue()) {
-//                self.delegate?.didReceiveResults()
-//            }
+            //            dispatch_async(dispatch_get_main_queue()) {
+            //                self.delegate?.didReceiveResults()
+            //            }
         }
     }
     
     private func saveDataFromNetworkWith(json: [String : AnyObject]) {
-        
         
         if let rawResults = json["results"] as? [[String: AnyObject]] where rawResults.count > 0 {
             
@@ -103,13 +102,13 @@ class SearchResultsDataSource: NSObject {
                     if let artistId = rawValue[RawArtistEntity.artistId] as? NSNumber,
                         let artistName = rawValue[RawArtistEntity.artistName] as? String,
                         let artistViewUrl = rawValue[RawArtistEntity.artistViewUrl] as? String,
-                        let artworkUrl = rawValue[RawCollectionEntity.artworkUrl] as? String,
                         
+                        let artworkUrl = rawValue[RawCollectionEntity.artworkUrl] as? String,
                         let collectionId = rawValue[RawCollectionEntity.collectionId] as? NSNumber,
                         let collectionName = rawValue[RawCollectionEntity.collectionName] as? String,
                         let collectionViewUrl = rawValue[RawCollectionEntity.collectionViewUrl] as? String,
                         let primaryGenreName = rawValue[RawCollectionEntity.primaryGenreName] as? String,
-                    
+                        
                         let previewUrl = rawValue[RawTrackEntity.previewUrl] as? String,
                         let trackId = rawValue[RawTrackEntity.trackId] as? NSNumber,
                         let trackName = rawValue[RawTrackEntity.trackName] as? String,
@@ -153,14 +152,11 @@ class SearchResultsDataSource: NSObject {
                         tracks.append(trackEntity)
                         collectionEntity.tracks = NSSet(array: tracks)
                         
-                        
                     } else {
-                        //Fail silently on this item
+                        print("this item is invalid")
                         break
                     }
                 }
-                
-                
                 
                 do {
                     try privateMOC.save()
@@ -187,7 +183,8 @@ class SearchResultsDataSource: NSObject {
         
         let urlComponents = NSURLComponents(string: fullyQualifiedURLString)!
         let termQuery = NSURLQueryItem(name: iTunesParameterKey.term, value: term)
-        urlComponents.queryItems = [termQuery]
+        let limitQuery = NSURLQueryItem(name: iTunesParameterKey.limit, value: "200")
+        urlComponents.queryItems = [termQuery, limitQuery]
         
         dataTask = session.dataTaskWithRequest(NSURLRequest(URL: urlComponents.URL!)) { (data: NSData?, response: NSURLResponse?, error: NSError?) in
             
