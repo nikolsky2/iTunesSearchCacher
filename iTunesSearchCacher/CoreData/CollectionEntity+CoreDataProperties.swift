@@ -15,7 +15,7 @@ import CoreData
 extension CollectionEntity {
 
     @NSManaged var artworkUrl: String
-    @NSManaged var collectionId: Int32
+    @NSManaged var collectionId: Int64
     @NSManaged var collectionName: String
     @NSManaged var collectionViewUrl: String
     @NSManaged var primaryGenreName: String

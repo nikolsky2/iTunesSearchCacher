@@ -16,7 +16,19 @@ struct RawArtistEntity {
 }
 
 class ArtistEntity: NSManagedObject {
-
-// Insert code here to add functionality to your managed object subclass
-
+    class func create(rawValue: [String : AnyObject], context: NSManagedObjectContext) -> ArtistEntity? {
+        if let artistId = rawValue[RawArtistEntity.artistId] as? NSNumber,
+            let artistName = rawValue[RawArtistEntity.artistName] as? String,
+            let artistViewUrl = rawValue[RawArtistEntity.artistViewUrl] as? String {
+            
+            let entity: ArtistEntity = context.createEntity()
+            entity.artistId = artistId.longLongValue
+            entity.artistName = artistName
+            entity.artistViewUrl = artistViewUrl
+            
+            return entity
+        }
+        
+        return nil
+    }
 }

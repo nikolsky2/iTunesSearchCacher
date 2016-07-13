@@ -59,8 +59,7 @@ class CoreDataStack {
     private class var storeOptions: [String: AnyObject] {
         return [
             NSMigratePersistentStoresAutomaticallyOption: true,
-            NSInferMappingModelAutomaticallyOption: true,
-            NSSQLitePragmasOption : ["journal_mode" : "DELETE"]
+            NSInferMappingModelAutomaticallyOption: true
         ]
     }
     

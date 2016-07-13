@@ -17,6 +17,23 @@ struct RawTrackEntity {
 }
 
 class TrackEntity: NSManagedObject {
-
-
+    class func create(rawValue: [String : AnyObject], context: NSManagedObjectContext) -> TrackEntity? {
+        
+        if let previewUrl = rawValue[RawTrackEntity.previewUrl] as? String,
+            let trackId = rawValue[RawTrackEntity.trackId] as? NSNumber,
+            let trackName = rawValue[RawTrackEntity.trackName] as? String,
+            let trackNumber = rawValue[RawTrackEntity.trackNumber] as? NSNumber {
+            
+            let entity: TrackEntity = context.createEntity()
+            
+            entity.previewUrl = previewUrl
+            entity.trackId = trackId.longLongValue
+            entity.trackName = trackName
+            entity.trackNumber = trackNumber.longLongValue
+            
+            return entity
+        }
+        
+        return nil
+    }
 }

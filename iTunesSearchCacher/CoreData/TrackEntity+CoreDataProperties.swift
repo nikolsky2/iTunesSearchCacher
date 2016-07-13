@@ -15,9 +15,9 @@ import CoreData
 extension TrackEntity {
 
     @NSManaged var previewUrl: String
-    @NSManaged var trackId: Int32
+    @NSManaged var trackId: Int64
     @NSManaged var trackName: String
-    @NSManaged var trackNumber: Int32
+    @NSManaged var trackNumber: Int64
     @NSManaged var collection: CollectionEntity
 
 }

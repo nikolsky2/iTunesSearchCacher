@@ -74,95 +74,58 @@ class SearchResultsDataSource: NSObject {
         
         //TODO: check the cache otherwise cache the term
         
-        
         fetchRequestWithTerm(term) { [unowned self] (rawDict: ([String : AnyObject])?) in
             if let json = rawDict {
-                self.saveDataFromNetworkWith(json)
+                self.saveDataFromNetworkWith(json, completion: { 
+                    self.delegate?.didReceiveResults()
+                })
             }
-            
-            //            dispatch_async(dispatch_get_main_queue()) {
-            //                self.delegate?.didReceiveResults()
-            //            }
         }
     }
     
-    private func saveDataFromNetworkWith(json: [String : AnyObject]) {
+    private func saveDataFromNetworkWith(json: [String : AnyObject], completion: () -> ()) {
         
         if let rawResults = json["results"] as? [[String: AnyObject]] where rawResults.count > 0 {
             
-            let privateMOC = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
-            privateMOC.parentContext = mainContext
-            privateMOC.performBlock {
+            //Collect ids for fetching
+            let rawTrackIds = rawResults.flatMap({ (rawValue: [String : AnyObject]) -> NSNumber? in
+                if let trackId = rawValue[RawTrackEntity.trackId] as? NSNumber {
+                    return trackId
+                } else {
+                    return nil
+                }
+            })
+            
+            //Fetch DB for existing Ids
+            let fetchRequest = NSFetchRequest(entityName: TrackEntity.className)
+            fetchRequest.predicate = NSPredicate(format: "trackId IN %@", rawTrackIds)
+            let trackEntities = try! self.mainContext.executeFetchRequest(fetchRequest) as! [TrackEntity]
+            
+            let privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
+            privateContext.parentContext = mainContext
+            privateContext.performBlock {
                 
-                let artists = [Int32 : ArtistEntity]()
-                let collections = [Int32 : CollectionEntity]()
-                
-                for rawValue in rawResults {
-                    
-                    if let artistId = rawValue[RawArtistEntity.artistId] as? NSNumber,
-                        let artistName = rawValue[RawArtistEntity.artistName] as? String,
-                        let artistViewUrl = rawValue[RawArtistEntity.artistViewUrl] as? String,
-                        
-                        let artworkUrl = rawValue[RawCollectionEntity.artworkUrl] as? String,
-                        let collectionId = rawValue[RawCollectionEntity.collectionId] as? NSNumber,
-                        let collectionName = rawValue[RawCollectionEntity.collectionName] as? String,
-                        let collectionViewUrl = rawValue[RawCollectionEntity.collectionViewUrl] as? String,
-                        let primaryGenreName = rawValue[RawCollectionEntity.primaryGenreName] as? String,
-                        
-                        let previewUrl = rawValue[RawTrackEntity.previewUrl] as? String,
-                        let trackId = rawValue[RawTrackEntity.trackId] as? NSNumber,
-                        let trackName = rawValue[RawTrackEntity.trackName] as? String,
-                        let trackNumber = rawValue[RawTrackEntity.trackNumber] as? NSNumber {
-                        
-                        var artistEntity: ArtistEntity!
-                        if let artist = artists[artistId.intValue] {
-                            artistEntity = artist
-                        } else {
-                            let artist: ArtistEntity = self.mainContext.createEntity()
-                            artist.artistId = artistId.intValue
-                            artist.artistName = artistName
-                            artist.artistViewUrl = artistViewUrl
-                            artistEntity = artist
-                        }
-                        
-                        var collectionEntity: CollectionEntity!
-                        if let collection = collections[collectionId.intValue] {
-                            collectionEntity = collection
-                        } else {
-                            let collection: CollectionEntity = self.mainContext.createEntity()
-                            collection.artworkUrl = artworkUrl
-                            collection.collectionId = collectionId.intValue
-                            collection.collectionName = collectionName
-                            collection.collectionViewUrl = collectionViewUrl
-                            collection.primaryGenreName = primaryGenreName
-                            collection.artist = artistEntity
-                            collectionEntity = collection
-                        }
-                        var collections = Array(artistEntity.collections)
-                        collections.append(collectionEntity)
-                        artistEntity.collections = NSSet(array: collections)
-                        
-                        let trackEntity: TrackEntity = self.mainContext.createEntity()
-                        trackEntity.previewUrl = previewUrl
-                        trackEntity.trackId = trackId.intValue
-                        trackEntity.trackName = trackName
-                        trackEntity.trackNumber = trackNumber.intValue
-                        
-                        var tracks = Array(collectionEntity.tracks)
-                        tracks.append(trackEntity)
-                        collectionEntity.tracks = NSSet(array: tracks)
-                        
-                    } else {
-                        print("this item is invalid")
-                        break
+                let addToDBTrackIds = Set(rawTrackIds.map{$0.longLongValue}).subtract(Set(trackEntities.map{$0.trackId}))
+                let onlyNonExistingRawResults = rawResults.filter({ (rawValue: [String : AnyObject]) -> Bool in
+                    if let trackId = rawValue[RawTrackEntity.trackId] as? NSNumber {
+                        return !addToDBTrackIds.contains(trackId.longLongValue)
                     }
+                    
+                    return false
+                })
+                
+                for rawValue in onlyNonExistingRawResults {
+                    let _ = TrackEntity.create(rawValue, context: privateContext)
+                    let _ = CollectionEntity.create(rawValue, context: privateContext)
+                    let _ = CollectionEntity.create(rawValue, context: privateContext)
                 }
                 
                 do {
-                    try privateMOC.save()
+                    try privateContext.save()
                     self.mainContext.performBlockAndWait {
                         do {
                             try self.mainContext.save()
+                            completion()
                         } catch {
                             fatalError("Failure to save context: \(error)")
                         }
@@ -171,9 +134,10 @@ class SearchResultsDataSource: NSObject {
                     fatalError("Failure to save context: \(error)")
                 }
             }
-            
+        } else {
+            print("no results")
+            completion()
         }
-        
     }
     
     private func fetchRequestWithTerm(term: String, completionBlock:([String: AnyObject])? -> ()) {
