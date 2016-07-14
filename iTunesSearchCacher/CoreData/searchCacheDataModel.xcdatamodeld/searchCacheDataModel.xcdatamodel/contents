@@ -30,7 +30,7 @@
     <elements>
         <element name="ArtistEntity" positionX="-414" positionY="-18" width="128" height="103"/>
         <element name="CollectionEntity" positionX="-216" positionY="126" width="128" height="163"/>
-        <element name="TrackEntity" positionX="-9" positionY="215" width="128" height="118"/>
         <element name="PhotoEntity" positionX="-9" positionY="51" width="128" height="75"/>
+        <element name="TrackEntity" positionX="-9" positionY="215" width="128" height="118"/>
     </elements>
 </model>

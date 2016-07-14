@@ -114,10 +114,69 @@ class SearchResultsDataSource: NSObject {
                     return false
                 })
                 
+                var artists = [Int64 : ArtistEntity]()
+                var collections = [Int64 : CollectionEntity]()
+                
                 for rawValue in onlyNonExistingRawResults {
-                    let _ = TrackEntity.create(rawValue, context: privateContext)
-                    let _ = CollectionEntity.create(rawValue, context: privateContext)
-                    let _ = CollectionEntity.create(rawValue, context: privateContext)
+                    if let artistId = rawValue[RawArtistEntity.artistId] as? NSNumber,
+                        let artistName = rawValue[RawArtistEntity.artistName] as? String,
+                        let artistViewUrl = rawValue[RawArtistEntity.artistViewUrl] as? String,
+                        
+                        let artworkUrl = rawValue[RawCollectionEntity.artworkUrl] as? String,
+                        let collectionId = rawValue[RawCollectionEntity.collectionId] as? NSNumber,
+                        let collectionName = rawValue[RawCollectionEntity.collectionName] as? String,
+                        let collectionViewUrl = rawValue[RawCollectionEntity.collectionViewUrl] as? String,
+                        let primaryGenreName = rawValue[RawCollectionEntity.primaryGenreName] as? String,
+                        
+                        let previewUrl = rawValue[RawTrackEntity.previewUrl] as? String,
+                        let trackId = rawValue[RawTrackEntity.trackId] as? NSNumber,
+                        let trackName = rawValue[RawTrackEntity.trackName] as? String,
+                        let trackNumber = rawValue[RawTrackEntity.trackNumber] as? NSNumber {
+                        
+                        // Track
+                        
+                        let trackEntity: TrackEntity = privateContext.createEntity()
+                        trackEntity.previewUrl = previewUrl
+                        trackEntity.trackId = trackId.longLongValue
+                        trackEntity.trackName = trackName
+                        trackEntity.trackNumber = trackNumber.longLongValue
+                        
+                        // Collection
+                        
+                        var collectionEntity: CollectionEntity!
+                        if let collection = collections[collectionId.longLongValue] {
+                            collectionEntity = collection
+                        } else {
+                            let collection: CollectionEntity = privateContext.createEntity()
+                            collection.artworkUrl = artworkUrl
+                            collection.collectionId = collectionId.longLongValue
+                            collection.collectionName = collectionName
+                            collection.collectionViewUrl = collectionViewUrl
+                            collection.primaryGenreName = primaryGenreName
+                            collectionEntity = collection
+                            collections[collection.collectionId] = collectionEntity
+                        }
+                        
+                        var tracks = Array(collectionEntity.tracks)
+                        tracks.append(trackEntity)
+                        collectionEntity.tracks = NSSet(array: tracks)
+                        
+                        // Artist
+                        
+                        var artistEntity: ArtistEntity!
+                        if let artist = artists[artistId.longLongValue] {
+                            artistEntity = artist
+                        } else {
+                            let artist: ArtistEntity = privateContext.createEntity()
+                            artist.artistId = artistId.longLongValue
+                            artist.artistName = artistName
+                            artist.artistViewUrl = artistViewUrl
+                        }
+                        
+                        var collections = Array(artistEntity.collections)
+                        collections.append(collectionEntity)
+                        artistEntity.collections = NSSet(array: collections)
+                    }
                 }
                 
                 do {
@@ -127,7 +186,7 @@ class SearchResultsDataSource: NSObject {
                             try self.mainContext.save()
                             completion()
                         } catch {
-                            fatalError("Failure to save context: \(error)")
+                            fatalError("Failure to save private context: \(error)")
                         }
                     }
                 } catch {
