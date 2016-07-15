@@ -17,44 +17,57 @@ enum iTunesSearchTermKind: String {
 }
 
 struct iTunesJSONResult {
-    var artistId: Int32
-    var trackId: Int32
+    
+    var artistId: NSNumber
     var artistName: String
-    var trackName: String
-    var collectionName: String
     var artistViewUrl: String
-    var previewUrl: String
-    var artworkUrl100: String
+    
+    var artworkUrl: String
+    var collectionId: NSNumber
+    var collectionName: String
+    var collectionViewUrl: String
     var primaryGenreName: String
+    
+    var previewUrl: String
+    var trackId: NSNumber
+    var trackName: String
+    var trackNumber: NSNumber
 }
-
-//@NSManaged var artistId: Int64
-//@NSManaged var artistName: String
-//@NSManaged var artistViewUrl: String
 
 extension iTunesJSONResult: RawRepresentable {
     init?(rawValue: [String: AnyObject]) {
         
-        if let _ = rawValue[RawArtistEntity.artistId] as? NSNumber,
-            let _ = rawValue[RawArtistEntity.artistName] as? String,
-            let _ = rawValue[RawArtistEntity.artistViewUrl] as? String,
+        if let artistId = rawValue[RawArtistEntity.artistId] as? NSNumber,
+            let artistName = rawValue[RawArtistEntity.artistName] as? String,
+            let artistViewUrl = rawValue[RawArtistEntity.artistViewUrl] as? String,
             
-            let _ = rawValue[RawCollectionEntity.artworkUrl] as? String,
-            let _ = rawValue[RawCollectionEntity.collectionId] as? NSNumber,
-            let _ = rawValue[RawCollectionEntity.collectionName] as? String,
-            let _ = rawValue[RawCollectionEntity.collectionViewUrl] as? String,
-            let _ = rawValue[RawCollectionEntity.primaryGenreName] as? String,
+            let artworkUrl = rawValue[RawCollectionEntity.artworkUrl] as? String,
+            let collectionId = rawValue[RawCollectionEntity.collectionId] as? NSNumber,
+            let collectionName = rawValue[RawCollectionEntity.collectionName] as? String,
+            let collectionViewUrl = rawValue[RawCollectionEntity.collectionViewUrl] as? String,
+            let primaryGenreName = rawValue[RawCollectionEntity.primaryGenreName] as? String,
             
-            let _ = rawValue[RawTrackEntity.previewUrl] as? String,
-            let _ = rawValue[RawTrackEntity.trackId] as? NSNumber,
-            let _ = rawValue[RawTrackEntity.trackName] as? String,
-            let _ = rawValue[RawTrackEntity.trackNumber] as? NSNumber,
+            let previewUrl = rawValue[RawTrackEntity.previewUrl] as? String,
+            let trackId = rawValue[RawTrackEntity.trackId] as? NSNumber,
+            let trackName = rawValue[RawTrackEntity.trackName] as? String,
+            let trackNumber = rawValue[RawTrackEntity.trackNumber] as? NSNumber,
             
             let kind = rawValue["kind"] as? String where kind == "song" {
         
+            self.previewUrl = previewUrl
+            self.trackId = trackId
+            self.trackName = trackName
+            self.trackNumber = trackNumber
             
-            return nil
+            self.artworkUrl = artworkUrl
+            self.collectionId = collectionId
+            self.collectionName = collectionName
+            self.collectionViewUrl = collectionViewUrl
+            self.primaryGenreName = primaryGenreName
             
+            self.artistId = artistId
+            self.artistName = artistName
+            self.artistViewUrl = artistViewUrl
             
         } else {
             return nil
@@ -62,7 +75,6 @@ extension iTunesJSONResult: RawRepresentable {
     }
     
     var rawValue: [String: AnyObject] {
-        //TODO:
         return ["": ""]
     }
 }

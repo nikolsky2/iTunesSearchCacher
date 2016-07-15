@@ -90,30 +90,6 @@ class SearchResultsDataSource: NSObject {
     
     typealias JSONResultItem = [String : AnyObject]
     
-    private func isValidRawItem(rawValue: JSONResultItem) -> JSONResultItem? {
-        if let _ = rawValue[RawArtistEntity.artistId] as? NSNumber,
-            let _ = rawValue[RawArtistEntity.artistName] as? String,
-            let _ = rawValue[RawArtistEntity.artistViewUrl] as? String,
-            
-            let _ = rawValue[RawCollectionEntity.artworkUrl] as? String,
-            let _ = rawValue[RawCollectionEntity.collectionId] as? NSNumber,
-            let _ = rawValue[RawCollectionEntity.collectionName] as? String,
-            let _ = rawValue[RawCollectionEntity.collectionViewUrl] as? String,
-            let _ = rawValue[RawCollectionEntity.primaryGenreName] as? String,
-            
-            let _ = rawValue[RawTrackEntity.previewUrl] as? String,
-            let _ = rawValue[RawTrackEntity.trackId] as? NSNumber,
-            let _ = rawValue[RawTrackEntity.trackName] as? String,
-            let _ = rawValue[RawTrackEntity.trackNumber] as? NSNumber,
-        
-            let kind = rawValue["kind"] as? String where kind == "song" {
-            
-            return rawValue
-        } else {
-            return nil
-        }
-    }
-    
     private var mainContextTracks = [TrackEntity]()
     
     private func saveDataFromNetworkWith(json: JSONResultItem, completion: (trackIds: [NSNumber]) -> ()) {
@@ -133,36 +109,16 @@ class SearchResultsDataSource: NSObject {
                 var recentCollection = LocalCollection(existingTrackEntities: [], existingCollectionEntities: [], existingArtistEntities: [])
                 
                 // Valid data
-                let validRawResults = rawResults.flatMap({ (rawValue: JSONResultItem) -> JSONResultItem? in
-                    return self.isValidRawItem(rawValue)
-                })
+                let validResults = rawResults.flatMap{ iTunesJSONResult(rawValue: $0) }
                 
                 //Track ids for fetching
-                let rawTrackIds = validRawResults.flatMap({ (rawValue: JSONResultItem) -> NSNumber? in
-                    if let trackId = rawValue[RawTrackEntity.trackId] as? NSNumber {
-                        return trackId
-                    } else {
-                        return nil
-                    }
-                })
+                let rawTrackIds = validResults.map{ $0.trackId }
                 
                 //Collections ids for fetching
-                let rawCollectionIds = Array(Set(validRawResults.flatMap({ (rawValue: JSONResultItem) -> NSNumber? in
-                    if let trackId = rawValue[RawCollectionEntity.collectionId] as? NSNumber {
-                        return trackId
-                    } else {
-                        return nil
-                    }
-                })))
+                let rawCollectionIds = Array(Set(validResults.map{ $0.collectionId }))
                 
                 //Artists ids for fetching
-                let rawArtistsIds = Array(Set(validRawResults.flatMap({ (rawValue: JSONResultItem) -> NSNumber? in
-                    if let trackId = rawValue[RawArtistEntity.artistId] as? NSNumber {
-                        return trackId
-                    } else {
-                        return nil
-                    }
-                })))
+                let rawArtistsIds = Array(Set(validResults.map{ $0.artistId }))
                 
                 //Fetch all tracks
                 let trackFetchRequest = NSFetchRequest(entityName: TrackEntity.className)
@@ -183,33 +139,31 @@ class SearchResultsDataSource: NSObject {
                 recentCollection.existingCollectionEntities.appendContentsOf(collections)
                 recentCollection.existingArtistEntities.appendContentsOf(artists)
                 
-                var insertedTracks = 0
-                var insertedCollections = 0
-                var insertedArtists = 0
-                var updatedCollections = 0
-                var updatededArtists = 0
+                struct Stats {
+                    var insertedTracks = 0
+                    var insertedCollections = 0
+                    var insertedArtists = 0
+                    var updatedCollections = 0
+                    var updatededArtists = 0
+                    
+                    func printResults() {
+                        print("insertedTracks = \(insertedTracks)")
+                        print("insertedCollections = \(insertedCollections)")
+                        print("insertedArtists = \(insertedArtists)")
+                        print("updatedCollections = \(updatedCollections)")
+                        print("updatededArtists = \(updatededArtists)")
+                        print("----------------------------------------------")
+                    }
+                }
                 
-                for rawValue in validRawResults {
-                    
-                    let artistId = rawValue[RawArtistEntity.artistId] as! NSNumber
-                    let artistName = rawValue[RawArtistEntity.artistName] as! String
-                    let artistViewUrl = rawValue[RawArtistEntity.artistViewUrl] as! String
-                    
-                    let artworkUrl = rawValue[RawCollectionEntity.artworkUrl] as! String
-                    let collectionId = rawValue[RawCollectionEntity.collectionId] as! NSNumber
-                    let collectionName = rawValue[RawCollectionEntity.collectionName] as! String
-                    let collectionViewUrl = rawValue[RawCollectionEntity.collectionViewUrl] as! String
-                    let primaryGenreName = rawValue[RawCollectionEntity.primaryGenreName] as! String
-                    
-                    let previewUrl = rawValue[RawTrackEntity.previewUrl] as! String
-                    let trackId = rawValue[RawTrackEntity.trackId] as! NSNumber
-                    let trackName = rawValue[RawTrackEntity.trackName] as! String
-                    let trackNumber = rawValue[RawTrackEntity.trackNumber] as! NSNumber
+                var stats = Stats()
+                
+                for item in validResults {
                     
                     // Track
                     
                     var trackEntity: TrackEntity!
-                    let foundTracks = recentCollection.existingTrackEntities.filter{ $0.trackId == trackId.longLongValue }
+                    let foundTracks = recentCollection.existingTrackEntities.filter{ $0.trackId == item.trackId.longLongValue }
                     if foundTracks.count > 0 {
                         
                         //skip existing objects
@@ -219,33 +173,33 @@ class SearchResultsDataSource: NSObject {
                         let track: TrackEntity = privateContext.createEntity()
                         trackEntity = track
                         recentCollection.existingTrackEntities.append(trackEntity)
-                        insertedTracks = insertedTracks + 1
+                        stats.insertedTracks = stats.insertedTracks + 1
                     }
                     
-                    trackEntity.previewUrl = previewUrl
-                    trackEntity.trackId = trackId.longLongValue
-                    trackEntity.trackName = trackName
-                    trackEntity.trackNumber = trackNumber.longLongValue
+                    trackEntity.previewUrl = item.previewUrl
+                    trackEntity.trackId = item.trackId.longLongValue
+                    trackEntity.trackName = item.trackName
+                    trackEntity.trackNumber = item.trackNumber.longLongValue
                     
                     // Collection
                     
                     var collectionEntity: CollectionEntity!
-                    let foundCollections = recentCollection.existingCollectionEntities.filter{ $0.collectionId == collectionId.longLongValue }
+                    let foundCollections = recentCollection.existingCollectionEntities.filter{ $0.collectionId == item.collectionId.longLongValue }
                     if foundCollections.count > 0 {
                         collectionEntity = foundCollections[0]
-                        updatedCollections = updatedCollections + 1
+                        stats.updatedCollections = stats.updatedCollections + 1
                     } else {
                         let collection: CollectionEntity = privateContext.createEntity()
                         collectionEntity = collection
                         recentCollection.existingCollectionEntities.append(collectionEntity)
-                        insertedCollections = insertedCollections + 1
+                        stats.insertedCollections = stats.insertedCollections + 1
                     }
                     
-                    collectionEntity.artworkUrl = artworkUrl
-                    collectionEntity.collectionId = collectionId.longLongValue
-                    collectionEntity.collectionName = collectionName
-                    collectionEntity.collectionViewUrl = collectionViewUrl
-                    collectionEntity.primaryGenreName = primaryGenreName
+                    collectionEntity.artworkUrl = item.artworkUrl
+                    collectionEntity.collectionId = item.collectionId.longLongValue
+                    collectionEntity.collectionName = item.collectionName
+                    collectionEntity.collectionViewUrl = item.collectionViewUrl
+                    collectionEntity.primaryGenreName = item.primaryGenreName
                     
                     //Establish Collection - Tracks relationship
                     
@@ -259,20 +213,20 @@ class SearchResultsDataSource: NSObject {
                     // Artist
                     
                     var artistEntity: ArtistEntity!
-                    let foundArtists = recentCollection.existingArtistEntities.filter{ $0.artistId == artistId.longLongValue }
+                    let foundArtists = recentCollection.existingArtistEntities.filter{ $0.artistId == item.artistId.longLongValue }
                     if foundArtists.count > 0 {
                         artistEntity = foundArtists[0]
-                        updatededArtists = updatededArtists + 1
+                        stats.updatededArtists = stats.updatededArtists + 1
                     } else {
                         let artist: ArtistEntity = privateContext.createEntity()
                         artistEntity = artist
                         recentCollection.existingArtistEntities.append(artistEntity)
-                        insertedArtists = insertedArtists + 1
+                        stats.insertedArtists = stats.insertedArtists + 1
                     }
                     
-                    artistEntity.artistId = artistId.longLongValue
-                    artistEntity.artistName = artistName
-                    artistEntity.artistViewUrl = artistViewUrl
+                    artistEntity.artistId = item.artistId.longLongValue
+                    artistEntity.artistName = item.artistName
+                    artistEntity.artistViewUrl = item.artistViewUrl
                     
                     //Establish Artist - Collections relationship
                     
@@ -290,12 +244,7 @@ class SearchResultsDataSource: NSObject {
                     trackEntity.collection = collectionEntity
                 }
                 
-                print("insertedTracks = \(insertedTracks)")
-                print("insertedCollections = \(insertedCollections)")
-                print("insertedArtists = \(insertedArtists)")
-                print("updatedCollections = \(updatedCollections)")
-                print("updatededArtists = \(updatededArtists)")
-                print("----------------------------------------------")
+                stats.printResults()
                 
                 do {
                     try privateContext.save()

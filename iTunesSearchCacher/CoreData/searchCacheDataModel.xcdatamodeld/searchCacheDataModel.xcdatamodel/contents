@@ -20,17 +20,23 @@
         <attribute name="photoData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <relationship name="collection" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CollectionEntity" inverseName="photo" inverseEntity="CollectionEntity" syncable="YES"/>
     </entity>
+    <entity name="SearchEntity" syncable="YES">
+        <attribute name="term" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="tracks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TrackEntity" inverseName="searches" inverseEntity="TrackEntity" syncable="YES"/>
+    </entity>
     <entity name="TrackEntity" representedClassName=".TrackEntity" syncable="YES">
         <attribute name="previewUrl" attributeType="String" syncable="YES"/>
         <attribute name="trackId" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="trackName" attributeType="String" syncable="YES"/>
         <attribute name="trackNumber" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <relationship name="collection" maxCount="1" deletionRule="Nullify" destinationEntity="CollectionEntity" inverseName="tracks" inverseEntity="CollectionEntity" syncable="YES"/>
+        <relationship name="searches" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SearchEntity" inverseName="tracks" inverseEntity="SearchEntity" syncable="YES"/>
     </entity>
     <elements>
         <element name="ArtistEntity" positionX="-414" positionY="-18" width="128" height="103"/>
-        <element name="CollectionEntity" positionX="-216" positionY="126" width="128" height="163"/>
-        <element name="PhotoEntity" positionX="-9" positionY="51" width="128" height="75"/>
-        <element name="TrackEntity" positionX="-9" positionY="215" width="128" height="118"/>
+        <element name="CollectionEntity" positionX="-252" positionY="126" width="128" height="163"/>
+        <element name="PhotoEntity" positionX="-56" positionY="105" width="128" height="75"/>
+        <element name="TrackEntity" positionX="-56" positionY="234" width="128" height="133"/>
+        <element name="SearchEntity" positionX="142" positionY="234" width="128" height="75"/>
     </elements>
 </model>
