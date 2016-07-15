@@ -160,16 +160,26 @@ class SearchResultsDataSource: NSObject {
                     recentCollection.existingCollectionEntities.appendContentsOf(collections)
                     recentCollection.existingArtistEntities.appendContentsOf(artists)
                     
-                    let search: SearchEntity = privateContext.createEntity()
-                    search.term = searchTerm
+                    //Fetch all search request
+                    let searchFetchRequest = NSFetchRequest(entityName: SearchEntity.className)
+                    let allSearches = try! privateContext.executeFetchRequest(searchFetchRequest) as! [SearchEntity]
+                    
+                    var searchEntity: SearchEntity!
+                    let foundSearchEntity = allSearches.filter{ $0.term == searchTerm }.first
+                    if foundSearchEntity != nil {
+                        searchEntity = foundSearchEntity
+                    } else {
+                        let search: SearchEntity = privateContext.createEntity()
+                        search.term = searchTerm
+                        searchEntity = search
+                    }
                     
                     for item in validResults {
                         
                         // Track
                         var trackEntity: TrackEntity!
-                        
-                        let foundTracks = recentCollection.existingTrackEntities.filter{ $0.trackId == item.trackId.longLongValue }
-                        if foundTracks.count > 0 {
+                        let foundTracks = recentCollection.existingTrackEntities.filter{ $0.trackId == item.trackId.longLongValue }.first
+                        if foundTracks != nil {
                             
                             //skip existing objects
                             
@@ -186,14 +196,14 @@ class SearchResultsDataSource: NSObject {
                         trackEntity.trackName = item.trackName
                         trackEntity.trackNumber = item.trackNumber.longLongValue
                         
-                        search.appendTrack(trackEntity)
+                        searchEntity.appendTrack(trackEntity)
                         
                         // Collection
                         
                         var collectionEntity: CollectionEntity!
-                        let foundCollections = recentCollection.existingCollectionEntities.filter{ $0.collectionId == item.collectionId.longLongValue }
-                        if foundCollections.count > 0 {
-                            collectionEntity = foundCollections[0]
+                        let foundCollections = recentCollection.existingCollectionEntities.filter{ $0.collectionId == item.collectionId.longLongValue }.first
+                        if foundCollections != nil {
+                            collectionEntity = foundCollections
                             stats.updatedCollections = stats.updatedCollections + 1
                         } else {
                             let collection: CollectionEntity = privateContext.createEntity()
@@ -214,9 +224,9 @@ class SearchResultsDataSource: NSObject {
                         // Artist
                         
                         var artistEntity: ArtistEntity!
-                        let foundArtists = recentCollection.existingArtistEntities.filter{ $0.artistId == item.artistId.longLongValue }
-                        if foundArtists.count > 0 {
-                            artistEntity = foundArtists[0]
+                        let foundArtists = recentCollection.existingArtistEntities.filter{ $0.artistId == item.artistId.longLongValue }.first
+                        if foundArtists != nil {
+                            artistEntity = foundArtists
                             stats.updatededArtists = stats.updatededArtists + 1
                         } else {
                             let artist: ArtistEntity = privateContext.createEntity()

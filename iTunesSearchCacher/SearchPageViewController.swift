@@ -46,7 +46,8 @@ class SearchPageViewController: UIViewController {
                 popoverPresentationController.sourceRect = sourceView.bounds
             }
             
-            let controller = segue.destinationViewController as! SearchTermsViewController
+            let navController = segue.destinationViewController as! UINavigationController
+            let controller = navController.topViewController as! SearchTermsViewController
             controller.delegate = self
             
             searchTermsViewController = controller
