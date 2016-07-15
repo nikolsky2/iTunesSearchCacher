@@ -8,19 +8,6 @@
 
 import Foundation
 
-struct iTunesJSONResultKey {
-    static let kind = "kind"
-    static let artistId = "artistId"
-    static let trackId = "trackId"
-    static let artistName = "artistName"
-    static let trackName = "trackName"
-    static let collectionName = "collectionName"
-    static let artistViewUrl = "artistViewUrl"
-    static let previewUrl = "previewUrl"
-    static let artworkUrl100 = "artworkUrl100"
-    static let primaryGenreName = "primaryGenreName"
-}
-
 enum iTunesSearchTermKind: String {
     case song = "song"
     case book = "book"
@@ -29,10 +16,7 @@ enum iTunesSearchTermKind: String {
     case pdfPodcast = "pdf podcast"
 }
 
-//TODO: Convert it to NSManagedObject
-
 struct iTunesJSONResult {
-    var kind: iTunesSearchTermKind
     var artistId: Int32
     var trackId: Int32
     var artistName: String
@@ -44,35 +28,34 @@ struct iTunesJSONResult {
     var primaryGenreName: String
 }
 
+//@NSManaged var artistId: Int64
+//@NSManaged var artistName: String
+//@NSManaged var artistViewUrl: String
+
 extension iTunesJSONResult: RawRepresentable {
     init?(rawValue: [String: AnyObject]) {
-        if let rawKind = rawValue[iTunesJSONResultKey.kind] as? String, let kind = iTunesSearchTermKind(rawValue: rawKind),
-            let artistId = rawValue[iTunesJSONResultKey.artistId] as? NSNumber,
-            let trackId = rawValue[iTunesJSONResultKey.trackId] as? NSNumber,
+        
+        if let _ = rawValue[RawArtistEntity.artistId] as? NSNumber,
+            let _ = rawValue[RawArtistEntity.artistName] as? String,
+            let _ = rawValue[RawArtistEntity.artistViewUrl] as? String,
             
-            let artistName = rawValue[iTunesJSONResultKey.artistName] as? String,
-            let trackName = rawValue[iTunesJSONResultKey.trackName] as? String,
-            let collectionName = rawValue[iTunesJSONResultKey.collectionName] as? String,
+            let _ = rawValue[RawCollectionEntity.artworkUrl] as? String,
+            let _ = rawValue[RawCollectionEntity.collectionId] as? NSNumber,
+            let _ = rawValue[RawCollectionEntity.collectionName] as? String,
+            let _ = rawValue[RawCollectionEntity.collectionViewUrl] as? String,
+            let _ = rawValue[RawCollectionEntity.primaryGenreName] as? String,
             
-            let artistViewUrl = rawValue[iTunesJSONResultKey.artistViewUrl] as? String,
-            let previewUrl = rawValue[iTunesJSONResultKey.previewUrl] as? String,
-            let artworkUrl100 = rawValue[iTunesJSONResultKey.artworkUrl100] as? String,
+            let _ = rawValue[RawTrackEntity.previewUrl] as? String,
+            let _ = rawValue[RawTrackEntity.trackId] as? NSNumber,
+            let _ = rawValue[RawTrackEntity.trackName] as? String,
+            let _ = rawValue[RawTrackEntity.trackNumber] as? NSNumber,
             
-            let primaryGenreName = rawValue[iTunesJSONResultKey.primaryGenreName] as? String
-        {
-            self.kind = kind
-            self.artistId = artistId.intValue
-            self.trackId = trackId.intValue
+            let kind = rawValue["kind"] as? String where kind == "song" {
+        
             
-            self.artistName = artistName
-            self.trackName = trackName
-            self.collectionName = collectionName
+            return nil
             
-            self.artistViewUrl = artistViewUrl
-            self.previewUrl = previewUrl
-            self.artworkUrl100 = artworkUrl100
             
-            self.primaryGenreName = primaryGenreName
         } else {
             return nil
         }

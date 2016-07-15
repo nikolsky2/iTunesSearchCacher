@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 protocol ReusableView: class {}
 extension ReusableView where Self: UIView {
@@ -15,6 +16,12 @@ extension ReusableView where Self: UIView {
     }
 }
 extension UITableViewCell: ReusableView { }
+
+class TrackTableViewCell: UITableViewCell {
+    @IBOutlet private weak var thumbnailView: UIImageView!
+    @IBOutlet private weak var topLabel: UILabel!
+    @IBOutlet private weak var bottomLabel: UILabel!
+}
 
 class SearchResultsViewController: UIViewController {
 
@@ -31,15 +38,36 @@ class SearchResultsViewController: UIViewController {
         title = searchTerm
         
         dataSource.delegate = self
-        dataSource.searchWithTerm(searchTerm)
+        dataSource.searchWithMode(SearchMode.Term(searchTerm))
         
         contentView.alpha = 0
         loadingView.alpha = 1
     }
 }
 
+extension SearchResultsViewController: UITableViewDataSource {
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return dataSource.numberOfItems
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier(TrackTableViewCell.className, forIndexPath: indexPath) as! TrackTableViewCell
+        
+        cell.topLabel.text = dataSource[indexPath.row].topString
+        cell.bottomLabel.text = dataSource[indexPath.row].bottomString
+        
+        return cell
+    }
+}
+
+extension SearchResultsViewController: UITableViewDelegate {
+    
+}
+
 extension SearchResultsViewController: SearchResultsDataSourceDelegate {
     func didReceiveResults() {
+        
+        contentTableView.reloadData()
         
         UIView.animateWithDuration(0.3) { [unowned self] in
             if self.dataSource.numberOfItems > 0 {

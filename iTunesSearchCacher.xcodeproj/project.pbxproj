@@ -25,6 +25,7 @@
 		F5F51A631D33B50500EB8135 /* CollectionEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F51A5D1D33B50500EB8135 /* CollectionEntity.swift */; };
 		F5F51A651D33B58D00EB8135 /* TrackEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F51A641D33B58D00EB8135 /* TrackEntity+CoreDataProperties.swift */; };
 		F5F51A671D34824500EB8135 /* NSObject+ClassName.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F51A661D34824500EB8135 /* NSObject+ClassName.swift */; };
+		F5FD032D1D3870200095C92D /* Trackable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FD032C1D3870200095C92D /* Trackable.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,7 @@
 		F5F51A5D1D33B50500EB8135 /* CollectionEntity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionEntity.swift; sourceTree = "<group>"; };
 		F5F51A641D33B58D00EB8135 /* TrackEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TrackEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		F5F51A661D34824500EB8135 /* NSObject+ClassName.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+ClassName.swift"; sourceTree = "<group>"; };
+		F5FD032C1D3870200095C92D /* Trackable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Trackable.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +67,7 @@
 			isa = PBXGroup;
 			children = (
 				F5F51A421D31F1E700EB8135 /* SearchResultsDataSource.swift */,
+				F5FD032C1D3870200095C92D /* Trackable.swift */,
 				F54BB57F1D31249C004411A1 /* iTunesJSONResult.swift */,
 				F5F51A661D34824500EB8135 /* NSObject+ClassName.swift */,
 			);
@@ -209,6 +212,7 @@
 				F54BB57A1D30E3C9004411A1 /* CoreDataStack.swift in Sources */,
 				F52410611D313EE300174B89 /* SearchResultsViewController.swift in Sources */,
 				F5F51A611D33B50500EB8135 /* TrackEntity.swift in Sources */,
+				F5FD032D1D3870200095C92D /* Trackable.swift in Sources */,
 				F54BB5681D30E2F0004411A1 /* AppDelegate.swift in Sources */,
 				F5F51A631D33B50500EB8135 /* CollectionEntity.swift in Sources */,
 				F5F51A5E1D33B50500EB8135 /* ArtistEntity+CoreDataProperties.swift in Sources */,

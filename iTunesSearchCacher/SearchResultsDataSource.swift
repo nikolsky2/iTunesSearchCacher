@@ -44,25 +44,25 @@ protocol SearchResultsDataSourceDelegate: class {
 
 extension SearchResultsDataSource {
     var numberOfItems: Int {
-        return itunesItems.count
+        return mainContextTracks.count
     }
     
-    subscript(index: Int) -> iTunesJSONResult {
+    subscript(index: Int) -> TrackViewModel {
         get {
-            return itunesItems[index]
+            return mainContextTracks[index]
         }
     }
+}
+
+enum SearchMode {
+    case All
+    case Term(String)
 }
 
 class SearchResultsDataSource: NSObject {
     
     weak var delegate: SearchResultsDataSourceDelegate?
     private var dataTask: NSURLSessionDataTask?
-    
-    //will notify
-    private var fetchedResultsController: NSFetchedResultsController?
-    
-    private var itunesItems = [iTunesJSONResult]()
     private let mainContext: NSManagedObjectContext
     
     init(mainContext: NSManagedObjectContext) {
@@ -70,13 +70,20 @@ class SearchResultsDataSource: NSObject {
         super.init()
     }
     
-    func searchWithTerm(term: String) {
-        
-        fetchRequestWithTerm(term) { [unowned self] (rawDict: ([String : AnyObject])?) in
-            if let json = rawDict {
-                self.saveDataFromNetworkWith(json, completion: {
-                    self.delegate?.didReceiveResults()
-                })
+    func searchWithMode(mode: SearchMode) {
+        switch mode {
+        case .All:
+            break
+        case .Term(let term):
+            fetchRequestWithTerm(term) { [unowned self] (rawDict: ([String : AnyObject])?) in
+                if let json = rawDict {
+                    self.saveDataFromNetworkWith(json, completion: { (trackIds: [NSNumber]) in
+                        //fetch main context tracks
+                        let tracks: [TrackEntity] = self.mainContext.fetchWithIds(trackIds)
+                        self.mainContextTracks = tracks
+                        self.delegate?.didReceiveResults()
+                    })
+                }
             }
         }
     }
@@ -97,20 +104,33 @@ class SearchResultsDataSource: NSObject {
             let _ = rawValue[RawTrackEntity.previewUrl] as? String,
             let _ = rawValue[RawTrackEntity.trackId] as? NSNumber,
             let _ = rawValue[RawTrackEntity.trackName] as? String,
-            let _ = rawValue[RawTrackEntity.trackNumber] as? NSNumber {
+            let _ = rawValue[RawTrackEntity.trackNumber] as? NSNumber,
+        
+            let kind = rawValue["kind"] as? String where kind == "song" {
+            
             return rawValue
         } else {
             return nil
         }
     }
     
-    private func saveDataFromNetworkWith(json: JSONResultItem, completion: () -> ()) {
+    private var mainContextTracks = [TrackEntity]()
+    
+    private func saveDataFromNetworkWith(json: JSONResultItem, completion: (trackIds: [NSNumber]) -> ()) {
         
         if let rawResults = json["results"] as? [JSONResultItem] where rawResults.count > 0 {
             
             let privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
             privateContext.parentContext = mainContext
             privateContext.performBlock {
+                
+                struct LocalCollection {
+                    var existingTrackEntities: [TrackEntity]
+                    var existingCollectionEntities: [CollectionEntity]
+                    var existingArtistEntities: [ArtistEntity]
+                }
+                
+                var recentCollection = LocalCollection(existingTrackEntities: [], existingCollectionEntities: [], existingArtistEntities: [])
                 
                 // Valid data
                 let validRawResults = rawResults.flatMap({ (rawValue: JSONResultItem) -> JSONResultItem? in
@@ -159,10 +179,9 @@ class SearchResultsDataSource: NSObject {
                 artistFetchRequest.predicate = NSPredicate(format: "artistId IN %@", rawArtistsIds)
                 let artists = try! privateContext.executeFetchRequest(artistFetchRequest) as! [ArtistEntity]
                 
-                
-                var existingTrackEntities = Set(tracks)
-                var existingCollectionEntities = Set(collections)
-                var existingArtistEntities = Set(artists)
+                recentCollection.existingTrackEntities.appendContentsOf(tracks)
+                recentCollection.existingCollectionEntities.appendContentsOf(collections)
+                recentCollection.existingArtistEntities.appendContentsOf(artists)
                 
                 var insertedTracks = 0
                 var insertedCollections = 0
@@ -190,7 +209,7 @@ class SearchResultsDataSource: NSObject {
                     // Track
                     
                     var trackEntity: TrackEntity!
-                    let foundTracks = existingTrackEntities.filter{ $0.trackId == trackId.longLongValue }
+                    let foundTracks = recentCollection.existingTrackEntities.filter{ $0.trackId == trackId.longLongValue }
                     if foundTracks.count > 0 {
                         
                         //skip existing objects
@@ -199,7 +218,7 @@ class SearchResultsDataSource: NSObject {
                     } else {
                         let track: TrackEntity = privateContext.createEntity()
                         trackEntity = track
-                        existingTrackEntities.insert(trackEntity)
+                        recentCollection.existingTrackEntities.append(trackEntity)
                         insertedTracks = insertedTracks + 1
                     }
                     
@@ -211,14 +230,14 @@ class SearchResultsDataSource: NSObject {
                     // Collection
                     
                     var collectionEntity: CollectionEntity!
-                    let foundCollections = existingCollectionEntities.filter{ $0.collectionId == collectionId.longLongValue }
+                    let foundCollections = recentCollection.existingCollectionEntities.filter{ $0.collectionId == collectionId.longLongValue }
                     if foundCollections.count > 0 {
                         collectionEntity = foundCollections[0]
                         updatedCollections = updatedCollections + 1
                     } else {
                         let collection: CollectionEntity = privateContext.createEntity()
                         collectionEntity = collection
-                        existingCollectionEntities.insert(collectionEntity)
+                        recentCollection.existingCollectionEntities.append(collectionEntity)
                         insertedCollections = insertedCollections + 1
                     }
                     
@@ -240,14 +259,14 @@ class SearchResultsDataSource: NSObject {
                     // Artist
                     
                     var artistEntity: ArtistEntity!
-                    let foundArtists = existingArtistEntities.filter{ $0.artistId == artistId.longLongValue }
+                    let foundArtists = recentCollection.existingArtistEntities.filter{ $0.artistId == artistId.longLongValue }
                     if foundArtists.count > 0 {
                         artistEntity = foundArtists[0]
                         updatededArtists = updatededArtists + 1
                     } else {
                         let artist: ArtistEntity = privateContext.createEntity()
                         artistEntity = artist
-                        existingArtistEntities.insert(artistEntity)
+                        recentCollection.existingArtistEntities.append(artistEntity)
                         insertedArtists = insertedArtists + 1
                     }
                     
@@ -283,7 +302,7 @@ class SearchResultsDataSource: NSObject {
                     self.mainContext.performBlockAndWait {
                         do {
                             try self.mainContext.save()
-                            completion()
+                            completion(trackIds: rawTrackIds)
                         } catch {
                             fatalError("Failure to save private context: \(error)")
                         }
@@ -293,8 +312,7 @@ class SearchResultsDataSource: NSObject {
                 }
             }
         } else {
-            print("no results")
-            completion()
+            completion(trackIds: [])
         }
     }
     
@@ -325,5 +343,7 @@ class SearchResultsDataSource: NSObject {
         
         dataTask?.resume()
     }
+    
+    
     
 }

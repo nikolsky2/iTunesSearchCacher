@@ -128,7 +128,7 @@
                                         <rect key="frame" x="0.0" y="0.0" width="600" height="536"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <prototypes>
-                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="VA9-z8-QwF">
+                                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="TrackTableViewCell" id="VA9-z8-QwF" customClass="TrackTableViewCell" customModule="iTunesSearchCacher" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="28" width="600" height="44"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="VA9-z8-QwF" id="a8c-G5-JIK">
@@ -141,8 +141,8 @@
                                                                 <constraint firstAttribute="width" secondItem="DXD-Df-aPj" secondAttribute="height" multiplier="1:1" id="fxh-d5-OzW"/>
                                                             </constraints>
                                                         </imageView>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No Quarter" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="V7I-Wr-h2T">
-                                                            <rect key="frame" x="64" y="3" width="77" height="18"/>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No Quarter (Houses of the Holy)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="V7I-Wr-h2T">
+                                                            <rect key="frame" x="64" y="3" width="221.5" height="18"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                             <nil key="highlightedColor"/>
@@ -157,15 +157,26 @@
                                                     <constraints>
                                                         <constraint firstItem="DXD-Df-aPj" firstAttribute="centerY" secondItem="V7I-Wr-h2T" secondAttribute="centerY" constant="10" id="2Rr-RE-MDE"/>
                                                         <constraint firstAttribute="bottom" secondItem="DXD-Df-aPj" secondAttribute="bottom" constant="-0.5" id="760-ca-FAN"/>
+                                                        <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="V7I-Wr-h2T" secondAttribute="trailing" constant="10" id="8uz-YX-L1T"/>
                                                         <constraint firstItem="DXD-Df-aPj" firstAttribute="top" secondItem="a8c-G5-JIK" secondAttribute="top" id="I0x-PY-8hN"/>
                                                         <constraint firstItem="DXD-Df-aPj" firstAttribute="leading" secondItem="a8c-G5-JIK" secondAttribute="leading" id="Jrb-oO-Q0l"/>
                                                         <constraint firstItem="V7I-Wr-h2T" firstAttribute="leading" secondItem="DXD-Df-aPj" secondAttribute="trailing" constant="20" id="a6d-jw-Nf1"/>
                                                         <constraint firstItem="upt-Tu-fQZ" firstAttribute="leading" secondItem="V7I-Wr-h2T" secondAttribute="leading" id="aHE-uP-NqY"/>
+                                                        <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="upt-Tu-fQZ" secondAttribute="trailing" constant="10" id="byg-Nf-Fb6"/>
                                                         <constraint firstItem="upt-Tu-fQZ" firstAttribute="top" secondItem="V7I-Wr-h2T" secondAttribute="bottom" constant="1" id="dBa-xh-cFw"/>
                                                     </constraints>
                                                 </tableViewCellContentView>
+                                                <connections>
+                                                    <outlet property="bottomLabel" destination="upt-Tu-fQZ" id="zCk-Lp-s3t"/>
+                                                    <outlet property="thumbnailView" destination="DXD-Df-aPj" id="xs6-ek-8ci"/>
+                                                    <outlet property="topLabel" destination="V7I-Wr-h2T" id="RA9-uD-5Au"/>
+                                                </connections>
                                             </tableViewCell>
                                         </prototypes>
+                                        <connections>
+                                            <outlet property="dataSource" destination="RY5-3N-ms4" id="9Gm-oX-PBJ"/>
+                                            <outlet property="delegate" destination="RY5-3N-ms4" id="AE2-43-9fw"/>
+                                        </connections>
                                     </tableView>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
