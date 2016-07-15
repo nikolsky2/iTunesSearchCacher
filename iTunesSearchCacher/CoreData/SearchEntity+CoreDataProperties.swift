@@ -1,5 +1,5 @@
 //
-//  TrackEntity+CoreDataProperties.swift
+//  SearchEntity+CoreDataProperties.swift
 //  iTunesSearchCacher
 //
 //  Created by Sergey Nikolsky on 15/07/2016.
@@ -12,13 +12,9 @@
 import Foundation
 import CoreData
 
-extension TrackEntity {
+extension SearchEntity {
 
-    @NSManaged var previewUrl: String
-    @NSManaged var trackId: Int64
-    @NSManaged var trackName: String
-    @NSManaged var trackNumber: Int64
-    @NSManaged var collection: CollectionEntity
-    @NSManaged var searches: NSSet?
+    @NSManaged var term: String
+    @NSManaged var tracks: NSSet?
 
 }

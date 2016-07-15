@@ -18,5 +18,15 @@ struct RawCollectionEntity {
 }
 
 class CollectionEntity: NSManagedObject {
-    
+    func appendTrack(trackEntity: TrackEntity) -> Bool {
+        var tracks = Array(self.tracks) as! [TrackEntity]
+        let tracksIds = tracks.map{ $0.trackId } as [Int64]
+        if tracksIds.contains(trackEntity.trackId) == false {
+            tracks.append(trackEntity)
+            self.tracks = NSSet(array: tracks)
+            return true
+        }
+        
+        return false
+    }
 }

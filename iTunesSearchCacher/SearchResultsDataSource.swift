@@ -77,8 +77,8 @@ class SearchResultsDataSource: NSObject {
         case .Term(let term):
             fetchRequestWithTerm(term) { [unowned self] (rawDict: ([String : AnyObject])?) in
                 if let json = rawDict {
-                    self.saveDataFromNetworkWith(json, completion: { (trackIds: [NSNumber]) in
-                        //fetch main context tracks
+                    self.saveDataFromNetworkWith(term, json: json, completion: { (trackIds) in
+                        //fetch main context data
                         let tracks: [TrackEntity] = self.mainContext.fetchWithIds(trackIds)
                         self.mainContextTracks = tracks
                         self.delegate?.didReceiveResults()
@@ -92,7 +92,7 @@ class SearchResultsDataSource: NSObject {
     
     private var mainContextTracks = [TrackEntity]()
     
-    private func saveDataFromNetworkWith(json: JSONResultItem, completion: (trackIds: [NSNumber]) -> ()) {
+    private func saveDataFromNetworkWith(searchTerm: String, json: JSONResultItem, completion: (trackIds: [NSNumber]) -> ()) {
         
         if let rawResults = json["results"] as? [JSONResultItem] where rawResults.count > 0 {
             
@@ -120,25 +120,6 @@ class SearchResultsDataSource: NSObject {
                 //Artists ids for fetching
                 let rawArtistsIds = Array(Set(validResults.map{ $0.artistId }))
                 
-                //Fetch all tracks
-                let trackFetchRequest = NSFetchRequest(entityName: TrackEntity.className)
-                trackFetchRequest.predicate = NSPredicate(format: "trackId IN %@", rawTrackIds)
-                let tracks = try! privateContext.executeFetchRequest(trackFetchRequest) as! [TrackEntity]
-                
-                //Fetch all collections
-                let collectionFetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
-                collectionFetchRequest.predicate = NSPredicate(format: "collectionId IN %@", rawCollectionIds)
-                let collections = try! privateContext.executeFetchRequest(collectionFetchRequest) as! [CollectionEntity]
-                
-                //Fetch all artists
-                let artistFetchRequest = NSFetchRequest(entityName: ArtistEntity.className)
-                artistFetchRequest.predicate = NSPredicate(format: "artistId IN %@", rawArtistsIds)
-                let artists = try! privateContext.executeFetchRequest(artistFetchRequest) as! [ArtistEntity]
-                
-                recentCollection.existingTrackEntities.appendContentsOf(tracks)
-                recentCollection.existingCollectionEntities.appendContentsOf(collections)
-                recentCollection.existingArtistEntities.appendContentsOf(artists)
-                
                 struct Stats {
                     var insertedTracks = 0
                     var insertedCollections = 0
@@ -157,91 +138,107 @@ class SearchResultsDataSource: NSObject {
                 }
                 
                 var stats = Stats()
-                
-                for item in validResults {
-                    
-                    // Track
-                    
-                    var trackEntity: TrackEntity!
-                    let foundTracks = recentCollection.existingTrackEntities.filter{ $0.trackId == item.trackId.longLongValue }
-                    if foundTracks.count > 0 {
-                        
-                        //skip existing objects
-                        
-                        continue
-                    } else {
-                        let track: TrackEntity = privateContext.createEntity()
-                        trackEntity = track
-                        recentCollection.existingTrackEntities.append(trackEntity)
-                        stats.insertedTracks = stats.insertedTracks + 1
-                    }
-                    
-                    trackEntity.previewUrl = item.previewUrl
-                    trackEntity.trackId = item.trackId.longLongValue
-                    trackEntity.trackName = item.trackName
-                    trackEntity.trackNumber = item.trackNumber.longLongValue
-                    
-                    // Collection
-                    
-                    var collectionEntity: CollectionEntity!
-                    let foundCollections = recentCollection.existingCollectionEntities.filter{ $0.collectionId == item.collectionId.longLongValue }
-                    if foundCollections.count > 0 {
-                        collectionEntity = foundCollections[0]
-                        stats.updatedCollections = stats.updatedCollections + 1
-                    } else {
-                        let collection: CollectionEntity = privateContext.createEntity()
-                        collectionEntity = collection
-                        recentCollection.existingCollectionEntities.append(collectionEntity)
-                        stats.insertedCollections = stats.insertedCollections + 1
-                    }
-                    
-                    collectionEntity.artworkUrl = item.artworkUrl
-                    collectionEntity.collectionId = item.collectionId.longLongValue
-                    collectionEntity.collectionName = item.collectionName
-                    collectionEntity.collectionViewUrl = item.collectionViewUrl
-                    collectionEntity.primaryGenreName = item.primaryGenreName
-                    
-                    //Establish Collection - Tracks relationship
-                    
-                    var collectionTracks = Array(collectionEntity.tracks)
-                    let collectionTracksIds = collectionTracks.map{ $0.trackId } as [Int64]
-                    if collectionTracksIds.contains(trackEntity.trackId) == false {
-                        collectionTracks.append(trackEntity)
-                        collectionEntity.tracks = NSSet(array: collectionTracks)
-                    }
 
-                    // Artist
+                if validResults.count > 0 {
                     
-                    var artistEntity: ArtistEntity!
-                    let foundArtists = recentCollection.existingArtistEntities.filter{ $0.artistId == item.artistId.longLongValue }
-                    if foundArtists.count > 0 {
-                        artistEntity = foundArtists[0]
-                        stats.updatededArtists = stats.updatededArtists + 1
-                    } else {
-                        let artist: ArtistEntity = privateContext.createEntity()
-                        artistEntity = artist
-                        recentCollection.existingArtistEntities.append(artistEntity)
-                        stats.insertedArtists = stats.insertedArtists + 1
+                    //Fetch all tracks
+                    let trackFetchRequest = NSFetchRequest(entityName: TrackEntity.className)
+                    trackFetchRequest.predicate = NSPredicate(format: "trackId IN %@", rawTrackIds)
+                    let tracks = try! privateContext.executeFetchRequest(trackFetchRequest) as! [TrackEntity]
+                    
+                    //Fetch all collections
+                    let collectionFetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
+                    collectionFetchRequest.predicate = NSPredicate(format: "collectionId IN %@", rawCollectionIds)
+                    let collections = try! privateContext.executeFetchRequest(collectionFetchRequest) as! [CollectionEntity]
+                    
+                    //Fetch all artists
+                    let artistFetchRequest = NSFetchRequest(entityName: ArtistEntity.className)
+                    artistFetchRequest.predicate = NSPredicate(format: "artistId IN %@", rawArtistsIds)
+                    let artists = try! privateContext.executeFetchRequest(artistFetchRequest) as! [ArtistEntity]
+                    
+                    recentCollection.existingTrackEntities.appendContentsOf(tracks)
+                    recentCollection.existingCollectionEntities.appendContentsOf(collections)
+                    recentCollection.existingArtistEntities.appendContentsOf(artists)
+                    
+                    let search: SearchEntity = privateContext.createEntity()
+                    search.term = searchTerm
+                    
+                    for item in validResults {
+                        
+                        // Track
+                        
+                        var trackEntity: TrackEntity!
+                        
+                        let foundTracks = recentCollection.existingTrackEntities.filter{ $0.trackId == item.trackId.longLongValue }
+                        if foundTracks.count > 0 {
+                            
+                            //skip existing objects
+                            
+                            continue
+                        } else {
+                            let track: TrackEntity = privateContext.createEntity()
+                            trackEntity = track
+                            recentCollection.existingTrackEntities.append(trackEntity)
+                            stats.insertedTracks = stats.insertedTracks + 1
+                        }
+                        
+                        trackEntity.previewUrl = item.previewUrl
+                        trackEntity.trackId = item.trackId.longLongValue
+                        trackEntity.trackName = item.trackName
+                        trackEntity.trackNumber = item.trackNumber.longLongValue
+                        
+                        search.appendTrack(trackEntity)
+                        
+                        // Collection
+                        
+                        var collectionEntity: CollectionEntity!
+                        let foundCollections = recentCollection.existingCollectionEntities.filter{ $0.collectionId == item.collectionId.longLongValue }
+                        if foundCollections.count > 0 {
+                            collectionEntity = foundCollections[0]
+                            stats.updatedCollections = stats.updatedCollections + 1
+                        } else {
+                            let collection: CollectionEntity = privateContext.createEntity()
+                            collectionEntity = collection
+                            recentCollection.existingCollectionEntities.append(collectionEntity)
+                            stats.insertedCollections = stats.insertedCollections + 1
+                        }
+                        
+                        collectionEntity.artworkUrl = item.artworkUrl
+                        collectionEntity.collectionId = item.collectionId.longLongValue
+                        collectionEntity.collectionName = item.collectionName
+                        collectionEntity.collectionViewUrl = item.collectionViewUrl
+                        collectionEntity.primaryGenreName = item.primaryGenreName
+                        
+                        //Establish Collection - Tracks relationship
+                        collectionEntity.appendTrack(trackEntity)
+                        
+                        // Artist
+                        
+                        var artistEntity: ArtistEntity!
+                        let foundArtists = recentCollection.existingArtistEntities.filter{ $0.artistId == item.artistId.longLongValue }
+                        if foundArtists.count > 0 {
+                            artistEntity = foundArtists[0]
+                            stats.updatededArtists = stats.updatededArtists + 1
+                        } else {
+                            let artist: ArtistEntity = privateContext.createEntity()
+                            artistEntity = artist
+                            recentCollection.existingArtistEntities.append(artistEntity)
+                            stats.insertedArtists = stats.insertedArtists + 1
+                        }
+                        
+                        artistEntity.artistId = item.artistId.longLongValue
+                        artistEntity.artistName = item.artistName
+                        artistEntity.artistViewUrl = item.artistViewUrl
+                        
+                        //Establish Artist - Collections relationship
+                        artistEntity.appendCollection(collectionEntity)
+                        
+                        //Establish Collection - Artist relationship
+                        collectionEntity.artist = artistEntity
+                        
+                        //Establish Track - Collection relationship
+                        trackEntity.collection = collectionEntity
                     }
-                    
-                    artistEntity.artistId = item.artistId.longLongValue
-                    artistEntity.artistName = item.artistName
-                    artistEntity.artistViewUrl = item.artistViewUrl
-                    
-                    //Establish Artist - Collections relationship
-                    
-                    var artistCollections = Array(artistEntity.collections)
-                    let artistCollectionsIds = artistCollections.map{ $0.collectionId } as [Int64]
-                    if artistCollectionsIds.contains(collectionEntity.collectionId) == false {
-                        artistCollections.append(collectionEntity)
-                        artistEntity.collections = NSSet(array: artistCollections)
-                    }
-                    
-                    //Establish Collection - Artist relationship
-                    collectionEntity.artist = artistEntity
-                    
-                    //Establish Track - Collection relationship
-                    trackEntity.collection = collectionEntity
                 }
                 
                 stats.printResults()
