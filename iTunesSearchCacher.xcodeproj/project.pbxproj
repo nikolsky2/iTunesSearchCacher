@@ -28,6 +28,7 @@
 		F5FD032D1D3870200095C92D /* Trackable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FD032C1D3870200095C92D /* Trackable.swift */; };
 		F5FD03311D38A7890095C92D /* SearchEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FD032E1D38A7890095C92D /* SearchEntity+CoreDataProperties.swift */; };
 		F5FD03321D38A7890095C92D /* SearchEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FD032F1D38A7890095C92D /* SearchEntity.swift */; };
+		F5FD03351D38B3BB0095C92D /* SearchTermsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FD03341D38B3BB0095C92D /* SearchTermsViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +55,7 @@
 		F5FD032C1D3870200095C92D /* Trackable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Trackable.swift; sourceTree = "<group>"; };
 		F5FD032E1D38A7890095C92D /* SearchEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SearchEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		F5FD032F1D38A7890095C92D /* SearchEntity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchEntity.swift; sourceTree = "<group>"; };
+		F5FD03341D38B3BB0095C92D /* SearchTermsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchTermsViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +101,7 @@
 			children = (
 				F5F51A541D33A05600EB8135 /* CoreData */,
 				F52410511D313DDF00174B89 /* SearchPageViewController.swift */,
+				F5FD03341D38B3BB0095C92D /* SearchTermsViewController.swift */,
 				F5F51A451D31F20600EB8135 /* Results */,
 				F58517BB1D31480C0004DB43 /* Main.storyboard */,
 				F54BB5701D30E2F0004411A1 /* LaunchScreen.storyboard */,
@@ -229,6 +232,7 @@
 				F52410521D313DDF00174B89 /* SearchPageViewController.swift in Sources */,
 				F54BB5801D31249C004411A1 /* iTunesJSONResult.swift in Sources */,
 				F5F51A431D31F1E700EB8135 /* SearchResultsDataSource.swift in Sources */,
+				F5FD03351D38B3BB0095C92D /* SearchTermsViewController.swift in Sources */,
 				F5F51A621D33B50500EB8135 /* CollectionEntity+CoreDataProperties.swift in Sources */,
 				F5F51A651D33B58D00EB8135 /* TrackEntity+CoreDataProperties.swift in Sources */,
 				F5F51A5F1D33B50500EB8135 /* ArtistEntity.swift in Sources */,

@@ -166,7 +166,6 @@ class SearchResultsDataSource: NSObject {
                     for item in validResults {
                         
                         // Track
-                        
                         var trackEntity: TrackEntity!
                         
                         let foundTracks = recentCollection.existingTrackEntities.filter{ $0.trackId == item.trackId.longLongValue }

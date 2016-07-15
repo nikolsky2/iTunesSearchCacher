@@ -46,6 +46,11 @@
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mOK-v1-SUD">
                                                 <rect key="frame" x="250.5" y="130" width="99" height="30"/>
                                                 <state key="normal" title="Search history"/>
+                                                <connections>
+                                                    <segue destination="876-8P-bQo" kind="popoverPresentation" identifier="SearchTermsViewControllerSegueId" popoverAnchorView="mOK-v1-SUD" id="C7k-fe-vm5">
+                                                        <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES"/>
+                                                    </segue>
+                                                </connections>
                                             </button>
                                         </subviews>
                                         <constraints>
@@ -81,6 +86,7 @@
                         <outlet property="searchButton" destination="dO2-3b-HqS" id="80L-96-x5A"/>
                         <outlet property="searchHistoryButton" destination="mOK-v1-SUD" id="LF2-gO-B3k"/>
                         <outlet property="searchTextField" destination="OdJ-Vu-QJc" id="I8F-TG-Li6"/>
+                        <segue destination="RY5-3N-ms4" kind="show" identifier="SearchPreselectedTermsSegueId" id="fBM-1g-aKG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4re-3O-2aI" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -211,6 +217,54 @@
             </objects>
             <point key="canvasLocation" x="1926" y="409"/>
         </scene>
+        <!--Search history-->
+        <scene sceneID="iY6-DE-COE">
+            <objects>
+                <viewController id="O8W-XW-5dK" customClass="SearchTermsViewController" customModule="iTunesSearchCacher" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Yas-7k-11G"/>
+                        <viewControllerLayoutGuide type="bottom" id="cax-eG-3xw"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="zdI-Yg-VJd">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="5BN-lZ-EIB">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="SearchTableViewCell" id="0ht-dK-v3m" customClass="SearchTableViewCell" customModule="iTunesSearchCacher" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="92" width="600" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="0ht-dK-v3m" id="4Cx-Ig-4CK">
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                                <connections>
+                                    <outlet property="dataSource" destination="O8W-XW-5dK" id="srG-Jr-KDv"/>
+                                    <outlet property="delegate" destination="O8W-XW-5dK" id="nxt-Mm-NkS"/>
+                                </connections>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="bottomMargin" secondItem="5BN-lZ-EIB" secondAttribute="bottom" id="VJ5-wm-12u"/>
+                            <constraint firstItem="5BN-lZ-EIB" firstAttribute="top" secondItem="zdI-Yg-VJd" secondAttribute="topMargin" id="fgU-wt-1Km"/>
+                            <constraint firstItem="5BN-lZ-EIB" firstAttribute="leading" secondItem="zdI-Yg-VJd" secondAttribute="leading" id="gYw-rP-2C1"/>
+                            <constraint firstAttribute="trailing" secondItem="5BN-lZ-EIB" secondAttribute="trailing" id="wjz-YU-1Cm"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Search history" id="T3G-EH-OT3"/>
+                    <connections>
+                        <outlet property="tableView" destination="5BN-lZ-EIB" id="guL-bL-OpO"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="a6o-6E-MWi" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2738" y="1162"/>
+        </scene>
         <!--Navigation Controller-->
         <scene sceneID="Wqx-Ih-4Dj">
             <objects>
@@ -229,9 +283,30 @@
             </objects>
             <point key="canvasLocation" x="354" y="409"/>
         </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="6Js-LM-5cd">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="876-8P-bQo" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="kEC-Ka-GUh">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="O8W-XW-5dK" kind="relationship" relationship="rootViewController" id="KYS-y9-8q7"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Eaj-Hd-fEi" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1926" y="1162"/>
+        </scene>
     </scenes>
     <resources>
         <image name="iTunesLogo" width="213" height="61"/>
         <image name="settings" width="21" height="21"/>
     </resources>
+    <inferredMetricsTieBreakers>
+        <segue reference="fBM-1g-aKG"/>
+    </inferredMetricsTieBreakers>
 </document>

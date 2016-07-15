@@ -26,7 +26,7 @@ class TrackTableViewCell: UITableViewCell {
 class SearchResultsViewController: UIViewController {
 
     var searchTerm: String!
-    var dataSource = SearchResultsDataSource(mainContext: AppManager.shared().mainContext)
+    private var dataSource = SearchResultsDataSource(mainContext: AppManager.shared().mainContext)
     
     @IBOutlet private weak var contentView: UIView!
     @IBOutlet private weak var contentTableView: UITableView!
