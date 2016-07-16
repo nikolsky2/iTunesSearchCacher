@@ -43,6 +43,27 @@ class SearchResultsViewController: UIViewController {
         contentView.alpha = 0
         loadingView.alpha = 1
     }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        reloadData()
+    }
+    
+    private func reloadData() {
+        contentTableView.reloadData()
+        
+        UIView.animateWithDuration(0.3) { [unowned self] in
+            if self.dataSource.numberOfItems > 0 {
+                self.contentView.alpha = 1
+                self.loadingView.alpha = 0
+            } else {
+                self.contentView.alpha = 0
+                self.loadingView.alpha = 1
+            }
+        }
+    }
+    
 }
 
 extension SearchResultsViewController: UITableViewDataSource {
@@ -66,17 +87,6 @@ extension SearchResultsViewController: UITableViewDelegate {
 
 extension SearchResultsViewController: SearchResultsDataSourceDelegate {
     func didReceiveResults() {
-        
-        contentTableView.reloadData()
-        
-        UIView.animateWithDuration(0.3) { [unowned self] in
-            if self.dataSource.numberOfItems > 0 {
-                self.contentView.alpha = 1
-                self.loadingView.alpha = 0
-            } else {
-                self.contentView.alpha = 0
-                self.loadingView.alpha = 1
-            }
-        }
+        reloadData()
     }
 }

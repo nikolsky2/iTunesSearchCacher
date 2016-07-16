@@ -74,15 +74,38 @@ class SearchResultsDataSource: NSObject {
         switch mode {
         case .All:
             break
-        case .Term(let term):
-            fetchRequestWithTerm(term) { [unowned self] (rawDict: ([String : AnyObject])?) in
-                if let json = rawDict {
-                    self.saveDataFromNetworkWith(term, json: json, completion: { (trackIds) in
-                        //fetch main context data
-                        let tracks: [TrackEntity] = self.mainContext.fetchWithIds(trackIds)
-                        self.mainContextTracks = tracks
-                        self.delegate?.didReceiveResults()
-                    })
+        case .Term(let searchTerm):
+            
+            //Check local search term for this term
+            
+            //Fetch all search request
+            let searchFetchRequest = NSFetchRequest(entityName: SearchEntity.className)
+            let predicate = NSPredicate(format: "term == %@", searchTerm)
+            searchFetchRequest.predicate = predicate
+            let searches = try! mainContext.executeFetchRequest(searchFetchRequest) as! [SearchEntity]
+            let foundSearchEntity = searches.filter{ $0.term == searchTerm }.first
+            if let searchEnitiy = foundSearchEntity {
+                //perform local search only
+                
+                //Fetch all tracks
+                let trackFetchRequest = NSFetchRequest(entityName: TrackEntity.className)
+                let trackFetchPredicate = NSPredicate(format: "ANY searches == %@", searchEnitiy)
+                trackFetchRequest.predicate = trackFetchPredicate
+                let tracks = try! mainContext.executeFetchRequest(trackFetchRequest) as! [TrackEntity]
+                self.mainContextTracks = tracks
+                self.delegate?.didReceiveResults()
+                
+            } else {
+                //perform network request
+                fetchRequestWithTerm(searchTerm) { [unowned self] (rawDict: ([String : AnyObject])?) in
+                    if let json = rawDict {
+                        self.saveDataFromNetworkWith(searchTerm, json: json, completion: { (trackIds) in
+                            //fetch main context data
+                            let tracks: [TrackEntity] = self.mainContext.fetchWithIds(trackIds)
+                            self.mainContextTracks = tracks
+                            self.delegate?.didReceiveResults()
+                        })
+                    }
                 }
             }
         }
@@ -283,15 +306,19 @@ class SearchResultsDataSource: NSObject {
         
         dataTask = session.dataTaskWithRequest(NSURLRequest(URL: urlComponents.URL!)) { (data: NSData?, response: NSURLResponse?, error: NSError?) in
             
-            do {
-                if let d = data, rawDict = try NSJSONSerialization.JSONObjectWithData(d, options: []) as? [String: AnyObject] {
-                    completionBlock(rawDict)
-                } else {
+            if error == nil {
+                do {
+                    if let d = data, rawDict = try NSJSONSerialization.JSONObjectWithData(d, options: []) as? [String: AnyObject] {
+                        completionBlock(rawDict)
+                    } else {
+                        completionBlock(nil)
+                    }
+                }
+                catch {
                     completionBlock(nil)
                 }
-            }
-            catch {
-                completionBlock(nil)
+            } else {
+                print("error: \(error)")
             }
         }
         
