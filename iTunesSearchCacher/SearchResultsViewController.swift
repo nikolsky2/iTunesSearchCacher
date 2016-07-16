@@ -88,7 +88,11 @@ extension SearchResultsViewController: UITableViewDelegate {
 }
 
 extension SearchResultsViewController: SearchResultsDataSourceDelegate {
-    func didReceiveResults() {
+    func didReloadResults() {
         reloadData()
+    }
+    
+    func didUpdateItemAt(indexPath: NSIndexPath) {
+        contentTableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
     }
 }

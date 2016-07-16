@@ -39,7 +39,8 @@ struct EntitiesParameterKey {
 }
 
 protocol SearchResultsDataSourceDelegate: class {
-    func didReceiveResults()
+    func didReloadResults()
+    func didUpdateItemAt(indexPath: NSIndexPath)
 }
 
 extension SearchResultsDataSource {
@@ -98,9 +99,10 @@ class SearchResultsDataSource: NSObject {
                 trackFetchRequest.sortDescriptors = [TrackEntity.defaultSortDescriptor]
                 
                 fetchedResultsController = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
+                fetchedResultsController.delegate = self
                 try! fetchedResultsController.performFetch()
                 
-                self.delegate?.didReceiveResults()
+                self.delegate?.didReloadResults()
                 
             } else {
                 //perform network request
@@ -111,9 +113,10 @@ class SearchResultsDataSource: NSObject {
                             let trackFetchRequest = NSFetchRequest(entityName: TrackEntity.className)
                             trackFetchRequest.sortDescriptors = [TrackEntity.defaultSortDescriptor]
                             self.fetchedResultsController = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: self.mainContext, sectionNameKeyPath: nil, cacheName: nil)
+                            self.fetchedResultsController.delegate = self
                             try! self.fetchedResultsController.performFetch()
                             
-                            self.delegate?.didReceiveResults()
+                            self.delegate?.didReloadResults()
                         })
                     }
                 }
@@ -335,7 +338,22 @@ class SearchResultsDataSource: NSObject {
         
         dataTask?.resume()
     }
-    
-    
-    
 }
+
+extension SearchResultsDataSource: NSFetchedResultsControllerDelegate {
+    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+        
+        switch(type) {
+        case .Update:
+            self.delegate?.didUpdateItemAt(indexPath!)
+        default:
+            break
+        }
+    }
+}
+
+
+
+
+
+
