@@ -17,5 +17,7 @@ struct RawTrackEntity {
 }
 
 class TrackEntity: NSManagedObject {
-
+    static var defaultSortDescriptor: NSSortDescriptor {
+        return NSSortDescriptor(key: "trackName", ascending: true, selector: #selector(NSString.caseInsensitiveCompare(_:)))
+    }
 }

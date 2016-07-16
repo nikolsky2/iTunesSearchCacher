@@ -26,4 +26,8 @@ class SearchEntity: NSManagedObject {
         
         return true
     }
+    
+    static var defaultSortDescriptor: NSSortDescriptor {
+        return NSSortDescriptor(key: "term", ascending: true, selector: #selector(NSString.caseInsensitiveCompare(_:)))
+    }
 }

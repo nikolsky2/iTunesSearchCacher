@@ -31,6 +31,7 @@ class SearchResultsViewController: UIViewController {
     @IBOutlet private weak var contentView: UIView!
     @IBOutlet private weak var contentTableView: UITableView!
     @IBOutlet private weak var loadingView: UIView!
+    @IBOutlet private weak var noDataView: UIView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,6 +41,7 @@ class SearchResultsViewController: UIViewController {
         dataSource.delegate = self
         dataSource.searchWithMode(SearchMode.Term(searchTerm))
         
+        noDataView.alpha = 0
         contentView.alpha = 0
         loadingView.alpha = 1
     }
@@ -59,11 +61,11 @@ class SearchResultsViewController: UIViewController {
                 self.loadingView.alpha = 0
             } else {
                 self.contentView.alpha = 0
-                self.loadingView.alpha = 1
+                self.loadingView.alpha = 0
+                self.noDataView.alpha = 1
             }
         }
     }
-    
 }
 
 extension SearchResultsViewController: UITableViewDataSource {

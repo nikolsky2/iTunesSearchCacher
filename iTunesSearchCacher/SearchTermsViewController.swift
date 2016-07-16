@@ -35,8 +35,7 @@ class SearchTermsViewController: UIViewController {
     
         //Fetch all search history
         let fetchRequest = NSFetchRequest(entityName: SearchEntity.className)
-        let sortDescriptor = NSSortDescriptor(key: "term", ascending: true, selector: #selector(NSString.caseInsensitiveCompare(_:)))
-        fetchRequest.sortDescriptors = [sortDescriptor]
+        fetchRequest.sortDescriptors = [SearchEntity.defaultSortDescriptor]
         searchTerms = try! context.executeFetchRequest(fetchRequest) as! [SearchEntity]
     }
 }

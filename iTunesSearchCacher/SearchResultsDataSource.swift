@@ -44,12 +44,13 @@ protocol SearchResultsDataSourceDelegate: class {
 
 extension SearchResultsDataSource {
     var numberOfItems: Int {
-        return mainContextTracks.count
+        return fetchedResultsController.sections?[0].numberOfObjects ?? 0
     }
     
     subscript(index: Int) -> TrackViewModel {
         get {
-            return mainContextTracks[index]
+            let trackEntity = fetchedResultsController.objectAtIndexPath(NSIndexPath(forRow: index, inSection: 0)) as! TrackEntity
+            return trackEntity
         }
     }
 }
@@ -64,6 +65,11 @@ class SearchResultsDataSource: NSObject {
     weak var delegate: SearchResultsDataSourceDelegate?
     private var dataTask: NSURLSessionDataTask?
     private let mainContext: NSManagedObjectContext
+    private var fetchedResultsController: NSFetchedResultsController!
+    
+    deinit {
+        dataTask?.cancel()
+    }
     
     init(mainContext: NSManagedObjectContext) {
         self.mainContext = mainContext
@@ -85,14 +91,15 @@ class SearchResultsDataSource: NSObject {
             let searches = try! mainContext.executeFetchRequest(searchFetchRequest) as! [SearchEntity]
             let foundSearchEntity = searches.filter{ $0.term == searchTerm }.first
             if let searchEnitiy = foundSearchEntity {
-                //perform local search only
                 
-                //Fetch all tracks
                 let trackFetchRequest = NSFetchRequest(entityName: TrackEntity.className)
                 let trackFetchPredicate = NSPredicate(format: "ANY searches == %@", searchEnitiy)
                 trackFetchRequest.predicate = trackFetchPredicate
-                let tracks = try! mainContext.executeFetchRequest(trackFetchRequest) as! [TrackEntity]
-                self.mainContextTracks = tracks
+                trackFetchRequest.sortDescriptors = [TrackEntity.defaultSortDescriptor]
+                
+                fetchedResultsController = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
+                try! fetchedResultsController.performFetch()
+                
                 self.delegate?.didReceiveResults()
                 
             } else {
@@ -100,9 +107,12 @@ class SearchResultsDataSource: NSObject {
                 fetchRequestWithTerm(searchTerm) { [unowned self] (rawDict: ([String : AnyObject])?) in
                     if let json = rawDict {
                         self.saveDataFromNetworkWith(searchTerm, json: json, completion: { (trackIds) in
-                            //fetch main context data
-                            let tracks: [TrackEntity] = self.mainContext.fetchWithIds(trackIds)
-                            self.mainContextTracks = tracks
+                            
+                            let trackFetchRequest = NSFetchRequest(entityName: TrackEntity.className)
+                            trackFetchRequest.sortDescriptors = [TrackEntity.defaultSortDescriptor]
+                            self.fetchedResultsController = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: self.mainContext, sectionNameKeyPath: nil, cacheName: nil)
+                            try! self.fetchedResultsController.performFetch()
+                            
                             self.delegate?.didReceiveResults()
                         })
                     }
@@ -113,14 +123,14 @@ class SearchResultsDataSource: NSObject {
     
     typealias JSONResultItem = [String : AnyObject]
     
-    private var mainContextTracks = [TrackEntity]()
-    
     private func saveDataFromNetworkWith(searchTerm: String, json: JSONResultItem, completion: (trackIds: [NSNumber]) -> ()) {
         
         if let rawResults = json["results"] as? [JSONResultItem] where rawResults.count > 0 {
             
             let privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
             privateContext.parentContext = mainContext
+            privateContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+            
             privateContext.performBlock {
                 
                 struct LocalCollection {

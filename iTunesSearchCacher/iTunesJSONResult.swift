@@ -38,21 +38,21 @@ extension iTunesJSONResult: RawRepresentable {
     init?(rawValue: [String: AnyObject]) {
         
         if let artistId = rawValue[RawArtistEntity.artistId] as? NSNumber,
-            let artistName = rawValue[RawArtistEntity.artistName] as? String,
-            let artistViewUrl = rawValue[RawArtistEntity.artistViewUrl] as? String,
+            artistName = rawValue[RawArtistEntity.artistName] as? String,
+            artistViewUrl = rawValue[RawArtistEntity.artistViewUrl] as? String,
             
-            let artworkUrl = rawValue[RawCollectionEntity.artworkUrl] as? String,
-            let collectionId = rawValue[RawCollectionEntity.collectionId] as? NSNumber,
-            let collectionName = rawValue[RawCollectionEntity.collectionName] as? String,
-            let collectionViewUrl = rawValue[RawCollectionEntity.collectionViewUrl] as? String,
-            let primaryGenreName = rawValue[RawCollectionEntity.primaryGenreName] as? String,
+            artworkUrl = rawValue[RawCollectionEntity.artworkUrl] as? String,
+            collectionId = rawValue[RawCollectionEntity.collectionId] as? NSNumber,
+            collectionName = rawValue[RawCollectionEntity.collectionName] as? String,
+            collectionViewUrl = rawValue[RawCollectionEntity.collectionViewUrl] as? String,
+            primaryGenreName = rawValue[RawCollectionEntity.primaryGenreName] as? String,
             
-            let previewUrl = rawValue[RawTrackEntity.previewUrl] as? String,
-            let trackId = rawValue[RawTrackEntity.trackId] as? NSNumber,
-            let trackName = rawValue[RawTrackEntity.trackName] as? String,
-            let trackNumber = rawValue[RawTrackEntity.trackNumber] as? NSNumber,
+            previewUrl = rawValue[RawTrackEntity.previewUrl] as? String,
+            trackId = rawValue[RawTrackEntity.trackId] as? NSNumber,
+            trackName = rawValue[RawTrackEntity.trackName] as? String,
+            trackNumber = rawValue[RawTrackEntity.trackNumber] as? NSNumber,
             
-            let kind = rawValue["kind"] as? String where kind == "song" {
+            kind = rawValue["kind"] as? String where kind == "song" {
         
             self.previewUrl = previewUrl
             self.trackId = trackId

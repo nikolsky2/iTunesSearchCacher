@@ -127,6 +127,22 @@
                                     <constraint firstItem="yVk-8V-mBh" firstAttribute="leading" secondItem="uR3-Tf-G65" secondAttribute="leading" constant="20" id="v8x-81-S5m"/>
                                 </constraints>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eQX-1V-9nr" userLabel="noData">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No data available" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AgL-lp-F3j">
+                                        <rect key="frame" x="234.5" y="290" width="131" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="AgL-lp-F3j" firstAttribute="centerX" secondItem="eQX-1V-9nr" secondAttribute="centerX" id="kY4-sn-HEn"/>
+                                    <constraint firstItem="AgL-lp-F3j" firstAttribute="centerY" secondItem="eQX-1V-9nr" secondAttribute="centerY" id="oBI-mw-tVZ"/>
+                                </constraints>
+                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mvc-cA-8Eo" userLabel="content view">
                                 <rect key="frame" x="0.0" y="64" width="600" height="536"/>
                                 <subviews>
@@ -198,12 +214,16 @@
                         <constraints>
                             <constraint firstItem="uR3-Tf-G65" firstAttribute="leading" secondItem="4g5-DK-wJi" secondAttribute="leading" id="1km-be-fvb"/>
                             <constraint firstItem="mvc-cA-8Eo" firstAttribute="leading" secondItem="4g5-DK-wJi" secondAttribute="leading" id="AHk-Bw-ave"/>
+                            <constraint firstItem="eQX-1V-9nr" firstAttribute="leading" secondItem="4g5-DK-wJi" secondAttribute="leading" id="JUO-kS-Tac"/>
                             <constraint firstItem="uR3-Tf-G65" firstAttribute="top" secondItem="4g5-DK-wJi" secondAttribute="topMargin" id="ME4-Mz-O8r"/>
                             <constraint firstAttribute="trailing" secondItem="uR3-Tf-G65" secondAttribute="trailing" id="ODM-uy-cQO"/>
                             <constraint firstAttribute="bottomMargin" secondItem="mvc-cA-8Eo" secondAttribute="bottom" id="S5p-tR-JNJ"/>
+                            <constraint firstAttribute="trailing" secondItem="eQX-1V-9nr" secondAttribute="trailing" id="Sqm-h4-uuH"/>
                             <constraint firstItem="mvc-cA-8Eo" firstAttribute="top" secondItem="EJB-M4-e6S" secondAttribute="bottom" id="eH6-Uc-Ai9"/>
+                            <constraint firstAttribute="bottomMargin" secondItem="eQX-1V-9nr" secondAttribute="bottom" id="l4M-mM-jVR"/>
                             <constraint firstAttribute="trailing" secondItem="mvc-cA-8Eo" secondAttribute="trailing" id="ofi-6b-oFl"/>
                             <constraint firstAttribute="bottomMargin" secondItem="uR3-Tf-G65" secondAttribute="bottom" id="tgC-hC-0v1"/>
+                            <constraint firstItem="eQX-1V-9nr" firstAttribute="top" secondItem="4g5-DK-wJi" secondAttribute="topMargin" id="xrf-ZZ-JTY"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Results" id="fWI-zh-L6k"/>
@@ -211,6 +231,7 @@
                         <outlet property="contentTableView" destination="BLx-Cq-KLY" id="93T-OJ-lkt"/>
                         <outlet property="contentView" destination="mvc-cA-8Eo" id="dg2-CX-hwq"/>
                         <outlet property="loadingView" destination="uR3-Tf-G65" id="Qdo-AD-hRc"/>
+                        <outlet property="noDataView" destination="eQX-1V-9nr" id="1qa-cu-8Eb"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="awc-7r-tMM" userLabel="First Responder" sceneMemberID="firstResponder"/>
