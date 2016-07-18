@@ -29,7 +29,6 @@
 		F5FD03311D38A7890095C92D /* SearchEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FD032E1D38A7890095C92D /* SearchEntity+CoreDataProperties.swift */; };
 		F5FD03321D38A7890095C92D /* SearchEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FD032F1D38A7890095C92D /* SearchEntity.swift */; };
 		F5FD03351D38B3BB0095C92D /* SearchTermsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FD03341D38B3BB0095C92D /* SearchTermsViewController.swift */; };
-		F5FD03371D3A11C70095C92D /* ContentDownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FD03361D3A11C70095C92D /* ContentDownloadManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,7 +56,6 @@
 		F5FD032E1D38A7890095C92D /* SearchEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SearchEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		F5FD032F1D38A7890095C92D /* SearchEntity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchEntity.swift; sourceTree = "<group>"; };
 		F5FD03341D38B3BB0095C92D /* SearchTermsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchTermsViewController.swift; sourceTree = "<group>"; };
-		F5FD03361D3A11C70095C92D /* ContentDownloadManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentDownloadManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +99,7 @@
 		F54BB5661D30E2F0004411A1 /* iTunesSearchCacher */ = {
 			isa = PBXGroup;
 			children = (
+				F5FD033A1D3BC90D0095C92D /* Networking */,
 				F5F51A541D33A05600EB8135 /* CoreData */,
 				F52410511D313DDF00174B89 /* SearchPageViewController.swift */,
 				F5FD03341D38B3BB0095C92D /* SearchTermsViewController.swift */,
@@ -129,7 +128,6 @@
 				F54BB5671D30E2F0004411A1 /* AppDelegate.swift */,
 				F54BB57B1D30E40F004411A1 /* AppManager.swift */,
 				F54BB5791D30E3C9004411A1 /* CoreDataStack.swift */,
-				F5FD03361D3A11C70095C92D /* ContentDownloadManager.swift */,
 			);
 			name = AppManagment;
 			sourceTree = "<group>";
@@ -148,6 +146,13 @@
 				F5F51A551D33A07D00EB8135 /* searchCacheDataModel.xcdatamodeld */,
 			);
 			path = CoreData;
+			sourceTree = "<group>";
+		};
+		F5FD033A1D3BC90D0095C92D /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Networking;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -222,7 +227,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F54BB57A1D30E3C9004411A1 /* CoreDataStack.swift in Sources */,
-				F5FD03371D3A11C70095C92D /* ContentDownloadManager.swift in Sources */,
 				F52410611D313EE300174B89 /* SearchResultsViewController.swift in Sources */,
 				F5F51A611D33B50500EB8135 /* TrackEntity.swift in Sources */,
 				F5FD032D1D3870200095C92D /* Trackable.swift in Sources */,

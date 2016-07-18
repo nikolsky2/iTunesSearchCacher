@@ -27,6 +27,7 @@ class SearchResultsViewController: UIViewController {
 
     var searchTerm: String!
     private var dataSource = SearchResultsDataSource(mainContext: AppManager.shared().mainContext)
+    var fetchOnce = false
     
     @IBOutlet private weak var contentView: UIView!
     @IBOutlet private weak var contentTableView: UITableView!
@@ -38,9 +39,6 @@ class SearchResultsViewController: UIViewController {
         
         title = searchTerm
         
-        dataSource.delegate = self
-        dataSource.searchWithMode(SearchMode.Term(searchTerm))
-        
         noDataView.alpha = 0
         contentView.alpha = 0
         loadingView.alpha = 1
@@ -49,7 +47,10 @@ class SearchResultsViewController: UIViewController {
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         
-        reloadData()
+        if !fetchOnce {
+            dataSource.delegate = self
+            dataSource.searchWithMode(SearchMode.Term(searchTerm))
+        }
     }
     
     private func reloadData() {

@@ -45,12 +45,16 @@ protocol SearchResultsDataSourceDelegate: class {
 
 extension SearchResultsDataSource {
     var numberOfItems: Int {
-        return fetchedResultsController.sections?[0].numberOfObjects ?? 0
+        if let controller = frc {
+            return controller.sections?[0].numberOfObjects ?? 0
+        } else {
+            return 0
+        }
     }
     
     subscript(index: Int) -> TrackViewModel {
         get {
-            let trackEntity = fetchedResultsController.objectAtIndexPath(NSIndexPath(forRow: index, inSection: 0)) as! TrackEntity
+            let trackEntity = frc!.objectAtIndexPath(NSIndexPath(forRow: index, inSection: 0)) as! TrackEntity
             return trackEntity
         }
     }
@@ -66,14 +70,27 @@ class SearchResultsDataSource: NSObject {
     weak var delegate: SearchResultsDataSourceDelegate?
     private var dataTask: NSURLSessionDataTask?
     private let mainContext: NSManagedObjectContext
-    private var fetchedResultsController: NSFetchedResultsController!
+    private var frc: NSFetchedResultsController?
+    private let contextObserver: AnyObject
     
     deinit {
         dataTask?.cancel()
+        
+        print("Deinit of \(self)")
     }
     
     init(mainContext: NSManagedObjectContext) {
         self.mainContext = mainContext
+        self.mainContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        
+        contextObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextDidSaveNotification, object: nil, queue: nil) {
+            notification in
+            
+            mainContext.performBlock({ () -> Void in
+                mainContext.mergeChangesFromContextDidSaveNotification(notification)
+            })
+        }
+        
         super.init()
     }
     
@@ -91,6 +108,10 @@ class SearchResultsDataSource: NSObject {
             searchFetchRequest.predicate = predicate
             let searches = try! mainContext.executeFetchRequest(searchFetchRequest) as! [SearchEntity]
             let foundSearchEntity = searches.filter{ $0.term == searchTerm }.first
+            
+            //by collection.collectionName
+            //let sectionNameKeyPath = ""
+            
             if let searchEnitiy = foundSearchEntity {
                 
                 let trackFetchRequest = NSFetchRequest(entityName: TrackEntity.className)
@@ -98,9 +119,9 @@ class SearchResultsDataSource: NSObject {
                 trackFetchRequest.predicate = trackFetchPredicate
                 trackFetchRequest.sortDescriptors = [TrackEntity.defaultSortDescriptor]
                 
-                fetchedResultsController = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
-                fetchedResultsController.delegate = self
-                try! fetchedResultsController.performFetch()
+                frc = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
+                frc!.delegate = self
+                try! frc!.performFetch()
                 
                 self.delegate?.didReloadResults()
                 
@@ -112,9 +133,9 @@ class SearchResultsDataSource: NSObject {
                             
                             let trackFetchRequest = NSFetchRequest(entityName: TrackEntity.className)
                             trackFetchRequest.sortDescriptors = [TrackEntity.defaultSortDescriptor]
-                            self.fetchedResultsController = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: self.mainContext, sectionNameKeyPath: nil, cacheName: nil)
-                            self.fetchedResultsController.delegate = self
-                            try! self.fetchedResultsController.performFetch()
+                            self.frc = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: self.mainContext, sectionNameKeyPath: nil, cacheName: nil)
+                            self.frc!.delegate = self
+                            try! self.frc!.performFetch()
                             
                             self.delegate?.didReloadResults()
                         })
@@ -131,7 +152,7 @@ class SearchResultsDataSource: NSObject {
         if let rawResults = json["results"] as? [JSONResultItem] where rawResults.count > 0 {
             
             let privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
-            privateContext.parentContext = mainContext
+            privateContext.persistentStoreCoordinator = mainContext.persistentStoreCoordinator
             privateContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
             
             privateContext.performBlock {
@@ -290,20 +311,14 @@ class SearchResultsDataSource: NSObject {
                 
                 do {
                     try privateContext.save()
-                    self.mainContext.performBlockAndWait {
-                        do {
-                            try self.mainContext.save()
-                            completion(trackIds: rawTrackIds)
-                        } catch {
-                            fatalError("Failure to save private context: \(error)")
-                        }
-                    }
+                    dispatch_async(dispatch_get_main_queue()) { completion(trackIds: rawTrackIds) }
                 } catch {
                     fatalError("Failure to save context: \(error)")
                 }
             }
         } else {
-            completion(trackIds: [])
+            dispatch_async(dispatch_get_main_queue()) { completion(trackIds: []) }
+            
         }
     }
     
@@ -319,20 +334,24 @@ class SearchResultsDataSource: NSObject {
         
         dataTask = session.dataTaskWithRequest(NSURLRequest(URL: urlComponents.URL!)) { (data: NSData?, response: NSURLResponse?, error: NSError?) in
             
+            var result: JSONResultItem? = nil
+            
             if error == nil {
                 do {
-                    if let d = data, rawDict = try NSJSONSerialization.JSONObjectWithData(d, options: []) as? [String: AnyObject] {
-                        completionBlock(rawDict)
+                    if let d = data, rawDict = try NSJSONSerialization.JSONObjectWithData(d, options: []) as? JSONResultItem {
+                        result = rawDict
                     } else {
-                        completionBlock(nil)
+                        print("error: \(error)")
                     }
                 }
                 catch {
-                    completionBlock(nil)
+                    print("error: \(error)")
                 }
             } else {
                 print("error: \(error)")
             }
+            
+            dispatch_async(dispatch_get_main_queue()) { completionBlock(result) }
         }
         
         
