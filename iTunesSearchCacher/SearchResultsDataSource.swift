@@ -65,7 +65,11 @@ enum SearchMode {
     case Term(String)
 }
 
+private let searchTermPropertyName = "term"
+
 class SearchResultsDataSource: NSObject {
+    
+    typealias JSONResultItem = [String : AnyObject]
     
     weak var delegate: SearchResultsDataSourceDelegate?
     private var dataTask: NSURLSessionDataTask?
@@ -107,10 +111,7 @@ class SearchResultsDataSource: NSObject {
             let predicate = NSPredicate(format: "term == %@", searchTerm)
             searchFetchRequest.predicate = predicate
             let searches = try! mainContext.executeFetchRequest(searchFetchRequest) as! [SearchEntity]
-            let foundSearchEntity = searches.filter{ $0.term == searchTerm }.first
-            
-            //by collection.collectionName
-            //let sectionNameKeyPath = ""
+            let foundSearchEntity = searches.first
             
             if let searchEnitiy = foundSearchEntity {
                 
@@ -144,8 +145,6 @@ class SearchResultsDataSource: NSObject {
             }
         }
     }
-    
-    typealias JSONResultItem = [String : AnyObject]
     
     private func saveDataFromNetworkWith(searchTerm: String, json: JSONResultItem, completion: (trackIds: [NSNumber]) -> ()) {
         
@@ -217,19 +216,7 @@ class SearchResultsDataSource: NSObject {
                     recentCollection.existingCollectionEntities.appendContentsOf(collections)
                     recentCollection.existingArtistEntities.appendContentsOf(artists)
                     
-                    //Fetch all search request
-                    let searchFetchRequest = NSFetchRequest(entityName: SearchEntity.className)
-                    let allSearches = try! privateContext.executeFetchRequest(searchFetchRequest) as! [SearchEntity]
-                    
-                    var searchEntity: SearchEntity!
-                    let foundSearchEntity = allSearches.filter{ $0.term == searchTerm }.first
-                    if foundSearchEntity != nil {
-                        searchEntity = foundSearchEntity
-                    } else {
-                        let search: SearchEntity = privateContext.createEntity()
-                        search.term = searchTerm
-                        searchEntity = search
-                    }
+                    let searchEntity: SearchEntity = privateContext.createEntity()
                     
                     for item in validResults {
                         
