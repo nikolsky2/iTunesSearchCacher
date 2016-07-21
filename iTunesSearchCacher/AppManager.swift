@@ -10,9 +10,16 @@ import Foundation
 import UIKit
 import CoreData
 
+protocol AppLifeCycle: class {
+    func didFinishLaunching()
+}
+
 class AppManager: NSObject {
     
     private var coreDataStack: CoreDataStack!
+    private var syncCoordinator: SyncCoordinator!
+    private var webService: WebService!
+    
     var mainContext: NSManagedObjectContext {
         return coreDataStack.mainContext
     }
@@ -26,9 +33,14 @@ class AppManager: NSObject {
         let window = UIWindow(frame: UIScreen.mainScreen().bounds)
         return window
     }()
-    
+}
+
+extension AppManager: AppLifeCycle {
     func didFinishLaunching() {
+        
         coreDataStack = CoreDataStack()
+        syncCoordinator = SyncCoordinator(mainManagedObjectContext: mainContext)
+        webService = WebService(persistentStoreCoordinator: coreDataStack.persistentStoreCoordinator)
         
         let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
         let navViewController = mainStoryBoard.instantiateInitialViewController()
