@@ -16,6 +16,8 @@
 		F54BB57C1D30E40F004411A1 /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB57B1D30E40F004411A1 /* AppManager.swift */; };
 		F54BB5801D31249C004411A1 /* iTunesJSONResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB57F1D31249C004411A1 /* iTunesJSONResult.swift */; };
 		F58517BC1D31480C0004DB43 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F58517BB1D31480C0004DB43 /* Main.storyboard */; };
+		F5B84FC71D41AC7D002FC782 /* DownloadMangerActiveObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B84FC61D41AC7D002FC782 /* DownloadMangerActiveObject.swift */; };
+		F5B84FC91D431E9E002FC782 /* NSFileManager+Directories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B84FC81D431E9E002FC782 /* NSFileManager+Directories.swift */; };
 		F5F51A431D31F1E700EB8135 /* SearchResultsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F51A421D31F1E700EB8135 /* SearchResultsDataSource.swift */; };
 		F5F51A571D33A07D00EB8135 /* searchCacheDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F5F51A551D33A07D00EB8135 /* searchCacheDataModel.xcdatamodeld */; };
 		F5F51A5E1D33B50500EB8135 /* ArtistEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F51A581D33B50500EB8135 /* ArtistEntity+CoreDataProperties.swift */; };
@@ -46,6 +48,8 @@
 		F54BB57B1D30E40F004411A1 /* AppManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
 		F54BB57F1D31249C004411A1 /* iTunesJSONResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iTunesJSONResult.swift; sourceTree = "<group>"; };
 		F58517BB1D31480C0004DB43 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		F5B84FC61D41AC7D002FC782 /* DownloadMangerActiveObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadMangerActiveObject.swift; sourceTree = "<group>"; };
+		F5B84FC81D431E9E002FC782 /* NSFileManager+Directories.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSFileManager+Directories.swift"; sourceTree = "<group>"; };
 		F5F51A421D31F1E700EB8135 /* SearchResultsDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsDataSource.swift; sourceTree = "<group>"; };
 		F5F51A561D33A07D00EB8135 /* searchCacheDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = searchCacheDataModel.xcdatamodel; sourceTree = "<group>"; };
 		F5F51A581D33B50500EB8135 /* ArtistEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ArtistEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -168,6 +172,8 @@
 			isa = PBXGroup;
 			children = (
 				F5FD035E1D3EF0DB0095C92D /* WebService.swift */,
+				F5B84FC61D41AC7D002FC782 /* DownloadMangerActiveObject.swift */,
+				F5B84FC81D431E9E002FC782 /* NSFileManager+Directories.swift */,
 			);
 			name = WebService;
 			sourceTree = "<group>";
@@ -251,11 +257,13 @@
 				F5FD03321D38A7890095C92D /* SearchEntity.swift in Sources */,
 				F5FD035A1D3DFAFD0095C92D /* SyncCoordinator.swift in Sources */,
 				F54BB5681D30E2F0004411A1 /* AppDelegate.swift in Sources */,
+				F5B84FC71D41AC7D002FC782 /* DownloadMangerActiveObject.swift in Sources */,
 				F5F51A631D33B50500EB8135 /* CollectionEntity.swift in Sources */,
 				F5FD035C1D3EEBD50095C92D /* NSManagedObjectContext+Extensions.swift in Sources */,
 				F5FD03311D38A7890095C92D /* SearchEntity+CoreDataProperties.swift in Sources */,
 				F5F51A5E1D33B50500EB8135 /* ArtistEntity+CoreDataProperties.swift in Sources */,
 				F54BB57C1D30E40F004411A1 /* AppManager.swift in Sources */,
+				F5B84FC91D431E9E002FC782 /* NSFileManager+Directories.swift in Sources */,
 				F5F51A671D34824500EB8135 /* NSObject+ClassName.swift in Sources */,
 				F52410521D313DDF00174B89 /* SearchPageViewController.swift in Sources */,
 				F54BB5801D31249C004411A1 /* iTunesJSONResult.swift in Sources */,

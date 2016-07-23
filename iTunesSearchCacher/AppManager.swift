@@ -17,8 +17,8 @@ protocol AppLifeCycle: class {
 class AppManager: NSObject {
     
     private var coreDataStack: CoreDataStack!
-    private var syncCoordinator: SyncCoordinator!
-    private var webService: WebService!
+//    private var syncCoordinator: SyncCoordinator!
+//    private var webService: WebService!
     
     var mainContext: NSManagedObjectContext {
         return coreDataStack.mainContext
@@ -39,8 +39,8 @@ extension AppManager: AppLifeCycle {
     func didFinishLaunching() {
         
         coreDataStack = CoreDataStack()
-        syncCoordinator = SyncCoordinator(mainManagedObjectContext: mainContext)
-        webService = WebService(persistentStoreCoordinator: coreDataStack.persistentStoreCoordinator)
+//        syncCoordinator = SyncCoordinator(mainManagedObjectContext: mainContext)
+//        webService = WebService(persistentStoreCoordinator: coreDataStack.persistentStoreCoordinator)
         
         let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
         let navViewController = mainStoryBoard.instantiateInitialViewController()

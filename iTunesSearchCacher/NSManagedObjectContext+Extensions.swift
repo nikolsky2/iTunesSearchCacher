@@ -13,6 +13,7 @@ extension NSManagedObjectContext {
     func createBackgroundContext() -> NSManagedObjectContext {
         let context = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
         context.persistentStoreCoordinator = persistentStoreCoordinator
+        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         return context
     }
     

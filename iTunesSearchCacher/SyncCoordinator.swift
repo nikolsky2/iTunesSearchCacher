@@ -20,7 +20,6 @@ class SyncCoordinator {
     private var setupToken = dispatch_once_t()
     
     
-    
     init(mainManagedObjectContext mainMOC: NSManagedObjectContext) {
         assert(mainMOC.concurrencyType == .MainQueueConcurrencyType)
         mainManagedObjectContext = mainMOC

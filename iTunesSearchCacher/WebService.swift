@@ -12,60 +12,19 @@ import CoreData
 protocol BackgroundDownloadable {
     var downloadProgress: NSProgress? { get }
     var downloadDestination: NSURL { get }
-    func downloadDidFinish(error error: NSError?)
-    func didChangeTaskIdentifier(taskIdentifier: Int)
+    func downloadDidFinish(taskIdentifier: Int, error: NSError?)
 }
 
 protocol ContentFileDownloadTaskType: class {
     var fileID: NSManagedObjectID { get }
+    var fileURL: String { get }
 }
 
-class CloudFileDownloadTask {
-    let contentID: NSManagedObjectID
-    
-    init(contentID: NSManagedObjectID) {
-        self.contentID = contentID
-    }
+extension CollectionEntity: ContentFileDownloadTaskType {
+    var fileID: NSManagedObjectID { return objectID }
+    var fileURL: String { return artworkUrl }
 }
 
-extension CloudFileDownloadTask: ContentFileDownloadTaskType {
-    var fileID: NSManagedObjectID { return contentID }
-}
-
-extension NSFileManager {
-    static func downloadDirectory() -> NSURL {
-        if let downloadDirectory = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true).first {
-            let url = NSURL(string: downloadDirectory)!.URLByAppendingPathComponent("Downloads")
-            
-            var isDirectory: ObjCBool = true
-            if NSFileManager.defaultManager().fileExistsAtPath(url.path!, isDirectory: &isDirectory) {
-                return url
-            } else {
-                do {
-                    try NSFileManager.defaultManager().createDirectoryAtPath(url.path!, withIntermediateDirectories: true, attributes: nil)
-                }
-                catch {
-                    assert(false, "error with creating a folder")
-                }
-                
-                return url
-            }
-        }
-        
-        assert(false, "error with creating a folder")
-    }
-}
-
-extension CloudFileDownloadTask: BackgroundDownloadable {
-    var downloadDestination: NSURL {
-        return NSFileManager.downloadDirectory()
-    }
-}
-
-
-//------------------------------------------------------------------------------------
-
-private let backgroundDownloadSessionIdentifier = "com.happyTuna.iTunesSearchCacher.BackgroundDownloadManager"
 private let maximumConnectionPerHost = 5
 
 private struct Download {
@@ -78,22 +37,9 @@ private struct Download {
     var downloadTask: NSURLSessionDownloadTask?
 }
 
-
-
 class WebService: NSObject {
-    
-    private var allTasks = [NSManagedObjectID: ContentFileDownloadTaskType]()
+
     private var downloads = [Int: Download]()
-    let privateContext: NSManagedObjectContext
-    
-    init(persistentStoreCoordinator: NSPersistentStoreCoordinator) {
-        
-        privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
-        privateContext.persistentStoreCoordinator = persistentStoreCoordinator
-        privateContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-        
-        super.init()
-    }
     
     private lazy var defaultSessionConfiguration: NSURLSessionConfiguration = {
         let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
@@ -101,14 +47,7 @@ class WebService: NSObject {
         return configuration
     }()
     
-    private lazy var defaultSession: NSURLSession = {
-        let session = NSURLSession(configuration: self.defaultSessionConfiguration, delegate: self, delegateQueue: nil)
-        return session
-    }()
-        
-    private var session: NSURLSession {
-        return defaultSession
-    }
+    var defaultSession: NSURLSession!
     
     private func delegateForTask(downloadTask: NSURLSessionDownloadTask) -> BackgroundDownloadable? {
         if var download = downloads[downloadTask.taskIdentifier] {
@@ -122,10 +61,8 @@ class WebService: NSObject {
         return nil
     }
     
-    //func startDownloadTask(request: NSURLRequest, delegate: BackgroundDownloadable, priority: Float) throws -> Int {
-    func startDownloadTask(request: NSURLRequest, delegate: BackgroundDownloadable) throws -> Int {
-        
-        let task = session.downloadTaskWithRequest(request)
+    func startDownloadTask(request: NSURLRequest, delegate: BackgroundDownloadable) -> Int {
+        let task = defaultSession.downloadTaskWithRequest(request)
         
         let download = Download(downloadDelegate: delegate, downloadTask: task)
         let taskIdentifier = task.taskIdentifier
@@ -134,6 +71,10 @@ class WebService: NSObject {
         
         task.resume()
         return taskIdentifier
+    }
+    
+    func start(operationQueue: NSOperationQueue) {
+        defaultSession = NSURLSession(configuration: defaultSessionConfiguration, delegate: self, delegateQueue: operationQueue)
     }
 
 }
@@ -148,7 +89,7 @@ extension WebService: NSURLSessionTaskDelegate {
         else if let downloadTask = task as? NSURLSessionDownloadTask, delegate = delegateForTask(downloadTask) {
             print("URLSession task:\(task) didCompleteWithError:\(error)")
             
-            delegate.downloadDidFinish(error: error)
+            delegate.downloadDidFinish(task.taskIdentifier, error: error)
             downloads.removeValueForKey(task.taskIdentifier)
         }
     }
@@ -198,8 +139,7 @@ extension WebService: NSURLSessionDownloadDelegate {
                 try NSFileManager.defaultManager().moveItemAtURL(correctedLocation, toURL: delegate.downloadDestination)
             }
             catch let error as NSError {
-                delegate.downloadDidFinish(error: error)
-                
+                delegate.downloadDidFinish(downloadTask.taskIdentifier, error: error)
                 downloads.removeValueForKey(downloadTask.taskIdentifier)
             }
         }
