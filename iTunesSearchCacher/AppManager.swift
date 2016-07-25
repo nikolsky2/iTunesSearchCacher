@@ -17,8 +17,7 @@ protocol AppLifeCycle: class {
 class AppManager: NSObject {
     
     private var coreDataStack: CoreDataStack!
-//    private var syncCoordinator: SyncCoordinator!
-//    private var webService: WebService!
+    private var downloadManger: DownloadMangerActiveObject!
     
     var mainContext: NSManagedObjectContext {
         return coreDataStack.mainContext
@@ -38,13 +37,24 @@ class AppManager: NSObject {
 extension AppManager: AppLifeCycle {
     func didFinishLaunching() {
         
-        coreDataStack = CoreDataStack()
-//        syncCoordinator = SyncCoordinator(mainManagedObjectContext: mainContext)
-//        webService = WebService(persistentStoreCoordinator: coreDataStack.persistentStoreCoordinator)
-        
         let mainStoryBoard = UIStoryboard(name: "Main", bundle: nil)
         let navViewController = mainStoryBoard.instantiateInitialViewController()
         window.rootViewController = navViewController
         window.makeKeyAndVisible()
+        
+        coreDataStack = CoreDataStack()
+        downloadManger = DownloadMangerActiveObject(context: coreDataStack.mainContext)
+        downloadManger.start()
+        
+        // Collection with no artwork
+        
+        let fetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
+        let allCollections = try! coreDataStack.mainContext.executeFetchRequest(fetchRequest) as! [CollectionEntity]
+        
+        let noArtworkCollections = allCollections.filter{ !$0.isArtworkDownloaded }.map { $0.objectID }
+        print("noArtworkCollections = \(noArtworkCollections)")
+
+        downloadManger.downloadFiles(noArtworkCollections)
+        
     }
 }

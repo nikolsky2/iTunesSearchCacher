@@ -30,3 +30,22 @@ class CollectionEntity: NSManagedObject {
         return false
     }
 }
+
+extension CollectionEntity {
+    var localArtworkUrl: NSURL {
+        let documentsURL = NSFileManager.downloadDirectory()
+        let artwokrUrl = NSURL(string: artworkUrl)!
+        let artworkFileName = artwokrUrl.lastPathComponent!
+        
+        //collectionId + 100x100bb.jpg
+        //580708520.artwork.100x100bb.jpg
+        
+        let url = documentsURL.URLByAppendingPathComponent(String(collectionId) + ".artwork." + artworkFileName)
+        return url
+    }
+    
+    var isArtworkDownloaded: Bool {
+        var isDirectory: ObjCBool = false
+        return NSFileManager.defaultManager().fileExistsAtPath(localArtworkUrl.path!, isDirectory: &isDirectory)
+    }
+}

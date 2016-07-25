@@ -14,10 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var appManager = AppManager()
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-       
-        //appManager.didFinishLaunching()
-        
-        //let tmpURL = NSFileManager.downloadDirectory()
+        appManager.didFinishLaunching()
         
         return true
     }

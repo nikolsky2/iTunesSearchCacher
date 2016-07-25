@@ -87,16 +87,14 @@ extension DownloadMangerActiveObject: ContentDownloadManaging {
 //MARK: -
 //MARK: ContentDownloadManager
 
-class ContentDownloadManager: NSObject {
+private class ContentDownloadManager: NSObject {
     
     let privateContext: NSManagedObjectContext
     let operationQueue: NSOperationQueue
     let webService: WebService
-    
-    private let downloadsLimit = 20
+
     private var allTasks = [NSManagedObjectID: ContentFileDownloadTaskType]()
-    private var activeTasks = Set<NSManagedObjectID>()
-    private var allTaskByIDs = [Int: ContentFileDownloadTaskType]()
+    private var activeTasks = [Int: ContentFileDownloadTaskType]()
     
     deinit {
         print("ContentDownloadServiceContext deinit")
@@ -116,14 +114,14 @@ class ContentDownloadManager: NSObject {
     }
     
     private var hasAvailableDownloadSlot: Bool {
-        return downloadsLimit > activeTasks.count
+        return activeTasks.count < webService.maximumConections
     }
     
     private func produceNewDownloads() {
         let oldCount = activeTasks.count
         
         try! performBulkyManagedObjectContextAction {
-            while hasAvailableDownloadSlot && !allTasks.isEmpty {
+            while hasAvailableDownloadSlot {
                 if let fileID = allTasks.first?.0, task = allTasks[fileID] {
                     startDownloadTask(task)
                 }
@@ -132,19 +130,13 @@ class ContentDownloadManager: NSObject {
         
         print("produceNewDownloads \(activeTasks.count - oldCount)")
     }
-    
-    private func startDownloadTask(task: ContentFileDownloadTaskType) {
-        self.activeTasks.insert(task.fileID)
-        startDownloadTask(task)
-    }
-    
-    private func startDownload(task: ContentFileDownloadTaskType) {
-        let url = NSURL(string: task.fileURL)!
-        let request = NSURLRequest(URL: url)
         
+    private func startDownloadTask(task: ContentFileDownloadTaskType) {
+        //self.activeTasks.insert(task.fileID)
+        let request = NSURLRequest(URL: task.fileURL)
         let taskIdentifier = webService.startDownloadTask(request, delegate: self)
         print("taskIdentifier = \(taskIdentifier)")
-        allTaskByIDs[taskIdentifier] = task
+        activeTasks[taskIdentifier] = task
     }
     
 //MARK: - Context managment
@@ -179,6 +171,7 @@ class ContentDownloadManager: NSObject {
 
 extension ContentDownloadManager: BackgroundDownloadable {
     var downloadProgress: NSProgress? {
+        print("downloadProgress")
         return nil
     }
     
@@ -187,10 +180,10 @@ extension ContentDownloadManager: BackgroundDownloadable {
     }
     
     func downloadDidFinish(taskIdentifier: Int, error: NSError?) {
-        if let task = allTaskByIDs[taskIdentifier] {
+        if let task = activeTasks[taskIdentifier] {
             allTasks.removeValueForKey(task.fileID)
-            activeTasks.remove(task.fileID)
-            allTaskByIDs.removeValueForKey(taskIdentifier)
+            //activeTasks.remove(task.fileID)
+            activeTasks.removeValueForKey(taskIdentifier)
         }
         
         produceNewDownloads()
@@ -205,7 +198,8 @@ extension ContentDownloadManager: ContentDownloadManaging {
     }
 
     func downloadFiles(fileIDs: [NSManagedObjectID]) {
-        privateContext.refreshAllObjects()
+        //???
+        //privateContext.refreshAllObjects()
         fileIDs.forEach({ fileID in scheduleFileWithID(fileID) })
         produceNewDownloads()
     }

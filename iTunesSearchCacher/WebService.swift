@@ -17,12 +17,12 @@ protocol BackgroundDownloadable {
 
 protocol ContentFileDownloadTaskType: class {
     var fileID: NSManagedObjectID { get }
-    var fileURL: String { get }
+    var fileURL: NSURL { get }
 }
 
 extension CollectionEntity: ContentFileDownloadTaskType {
     var fileID: NSManagedObjectID { return objectID }
-    var fileURL: String { return artworkUrl }
+    var fileURL: NSURL { return localArtworkUrl }
 }
 
 private let maximumConnectionPerHost = 5
@@ -38,6 +38,10 @@ private struct Download {
 }
 
 class WebService: NSObject {
+    
+    var maximumConections: Int {
+        return maximumConnectionPerHost
+    }
 
     private var downloads = [Int: Download]()
     
