@@ -150,10 +150,7 @@ class SearchResultsDataSource: NSObject {
         
         if let rawResults = json["results"] as? [JSONResultItem] where rawResults.count > 0 {
             
-            let privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
-            privateContext.persistentStoreCoordinator = mainContext.persistentStoreCoordinator
-            privateContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-            
+            let privateContext = mainContext.createBackgroundContext()
             privateContext.performBlock {
                 
                 struct LocalCollection {
@@ -217,6 +214,7 @@ class SearchResultsDataSource: NSObject {
                     recentCollection.existingArtistEntities.appendContentsOf(artists)
                     
                     let searchEntity: SearchEntity = privateContext.createEntity()
+                    searchEntity.term = searchTerm
                     
                     for item in validResults {
                         
@@ -292,6 +290,12 @@ class SearchResultsDataSource: NSObject {
                         //Establish Track - Collection relationship
                         trackEntity.collection = collectionEntity
                     }
+                    
+                    let allColections = recentCollection.existingCollectionEntities.map{ $0.collectionId }
+                    let uColections = Set(allColections)
+                    
+                    print("all\tColections.count = \(allColections.count)")
+                    print("unique\tColections.count = \(uColections.count)")
                 }
                 
                 stats.printResults()

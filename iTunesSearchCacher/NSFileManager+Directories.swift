@@ -11,7 +11,7 @@ import Foundation
 extension NSFileManager {
     static func downloadDirectory() -> NSURL {
         if let downloadDirectory = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true).first {
-            let url = NSURL(string: downloadDirectory)!.URLByAppendingPathComponent("Downloads")
+            let url = NSURL(fileURLWithPath: downloadDirectory).URLByAppendingPathComponent("Downloads")
             
             var isDirectory: ObjCBool = true
             if NSFileManager.defaultManager().fileExistsAtPath(url.path!, isDirectory: &isDirectory) {

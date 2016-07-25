@@ -48,13 +48,7 @@ extension AppManager: AppLifeCycle {
         
         // Collection with no artwork
         
-        let fetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
-        let allCollections = try! coreDataStack.mainContext.executeFetchRequest(fetchRequest) as! [CollectionEntity]
-        
-        let noArtworkCollections = allCollections.filter{ !$0.isArtworkDownloaded }.map { $0.objectID }
-        print("noArtworkCollections = \(noArtworkCollections)")
-
-        downloadManger.downloadFiles(noArtworkCollections)
+        downloadManger.downloadFiles()
         
     }
 }
