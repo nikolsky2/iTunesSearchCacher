@@ -79,6 +79,7 @@ extension SearchResultsViewController: UITableViewDataSource {
         
         cell.topLabel.text = dataSource[indexPath.row].topString
         cell.bottomLabel.text = dataSource[indexPath.row].bottomString
+        cell.thumbnailView.image = dataSource[indexPath.row].trackImage
         
         return cell
     }

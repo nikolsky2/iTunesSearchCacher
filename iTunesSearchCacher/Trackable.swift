@@ -8,13 +8,24 @@
 
 import Foundation
 import CoreData
+import UIKit
 
 protocol TrackViewModel: class {
+    var trackImage: UIImage? { get }
     var topString: String { get }
     var bottomString: String { get }
 }
 
 extension TrackEntity: TrackViewModel {
+    var trackImage: UIImage? {
+        if let data = collection.artworkData {
+            let image = UIImage(data: data)
+            return image
+        }
+        
+        return nil
+    }
+    
     var topString: String {
         return trackName + " (" + collection.collectionName + ")"
     }

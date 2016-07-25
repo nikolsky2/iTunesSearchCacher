@@ -18,7 +18,6 @@ protocol ContentDownloadManaging {
 //MARK: DownloadMangerActiveObject
 
 class DownloadMangerActiveObject: NSObject {
-    private var context: NSManagedObjectContext!
     private let operationQueue: NSOperationQueue
     private var contentDownloadManager: ContentDownloadManager!
     
@@ -31,12 +30,10 @@ class DownloadMangerActiveObject: NSObject {
         operationQueue.maxConcurrentOperationCount = 1
         operationQueue.underlyingQueue = dispatch_queue_create("com.happyTuna.iTunesSearchCacher.DownloadMangerActiveObject", nil)
         
-        self.context = context
-        
         super.init()
         
         contentDownloadManager = self.performSyncOnPrivateQueue {
-            ContentDownloadManager(operationQueue: self.operationQueue, privateContext: context.createBackgroundContext())
+            ContentDownloadManager(operationQueue: self.operationQueue, context: context)
         }
     }
     
@@ -89,9 +86,11 @@ extension DownloadMangerActiveObject: ContentDownloadManaging {
 
 private class ContentDownloadManager: NSObject {
     
+    //let mainContext: NSManagedObjectContext
     let privateContext: NSManagedObjectContext
     let operationQueue: NSOperationQueue
     let webService: WebService
+    private var contextObserver: AnyObject!
 
     private var pendingQueue = [ContentFileDownloadTaskType]()
     private var activeTasks = [Int: ContentFileDownloadTaskType]()
@@ -101,12 +100,26 @@ private class ContentDownloadManager: NSObject {
         print("ContentDownloadServiceContext deinit")
     }
     
-    private init(operationQueue: NSOperationQueue, privateContext: NSManagedObjectContext) {
+    private init(operationQueue: NSOperationQueue, context: NSManagedObjectContext) {
         self.operationQueue = operationQueue
-        self.privateContext = privateContext
+        //self.mainContext = context
+        self.privateContext = context.createBackgroundContext()
         self.webService = WebService()
         
         super.init()
+        
+        contextObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextDidSaveNotification, object: context, queue: nil) {
+            notification in
+            
+            self.privateContext.performBlock({ () -> Void in
+                self.privateContext.mergeChangesFromContextDidSaveNotification(notification)
+                
+                //Append or start new donwloads
+                dispatch_sync(operationQueue.underlyingQueue!) {
+                    self.downloadFiles()
+                }
+            })
+        }
         
         webService.delegate = self
     }
@@ -116,6 +129,8 @@ private class ContentDownloadManager: NSObject {
     }
     
     private func produceNewDownloads() {
+        guard pendingQueue.count != 0 else { return }
+        
         let oldCount = activeTasks.count
         
         try! performBulkyManagedObjectContextAction {
@@ -169,14 +184,6 @@ private class ContentDownloadManager: NSObject {
 
 extension ContentDownloadManager: BackgroundDownloadable {
     
-    func localFileURL(taskIdentifier: Int) -> NSURL {
-        if let task = activeTasks[taskIdentifier] {
-            return task.localFileURL
-        } else {
-            fatalError("task is not found for taskIdentifier")
-        }
-    }
-    
     func updateProgress(taskIdentifier: Int, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
         var taskProgress: NSProgress!
         if let progress = activeProgress[taskIdentifier] {
@@ -190,7 +197,11 @@ extension ContentDownloadManager: BackgroundDownloadable {
         taskProgress.completedUnitCount = totalBytesWritten
     }
     
-    func downloadDidFinish(taskIdentifier: Int, error: NSError?) {
+    func downloadDidFinish(taskIdentifier: Int, data: NSData) {
+        
+        let collection = privateContext.objectWithID(activeTasks[taskIdentifier]!.fileID) as! CollectionEntity
+        collection.artworkData = data
+        
         activeTasks.removeValueForKey(taskIdentifier)
         activeProgress.removeValueForKey(taskIdentifier)
         
@@ -208,7 +219,7 @@ extension ContentDownloadManager: ContentDownloadManaging {
     func downloadFiles() {
         let fetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
         let allCollections = try! privateContext.executeFetchRequest(fetchRequest) as! [CollectionEntity]
-        pendingQueue = allCollections.filter{ !$0.isArtworkDownloaded }.map {$0 as ContentFileDownloadTaskType}
+        pendingQueue = allCollections.filter{ $0.artworkData == nil }.map {$0 as ContentFileDownloadTaskType}
         produceNewDownloads()
     }
 }

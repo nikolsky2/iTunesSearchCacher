@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15F34" minimumToolsVersion="Xcode 7.0">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15G31" minimumToolsVersion="Xcode 7.0">
     <entity name="ArtistEntity" representedClassName=".ArtistEntity" syncable="YES">
         <attribute name="artistId" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="artistName" attributeType="String" syncable="YES"/>
@@ -7,24 +7,21 @@
         <relationship name="collections" toMany="YES" deletionRule="Cascade" destinationEntity="CollectionEntity" inverseName="artist" inverseEntity="CollectionEntity" syncable="YES"/>
     </entity>
     <entity name="CollectionEntity" representedClassName=".CollectionEntity" syncable="YES">
+        <attribute name="artworkData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <attribute name="artworkUrl" attributeType="String" syncable="YES"/>
         <attribute name="collectionId" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="collectionName" attributeType="String" syncable="YES"/>
         <attribute name="collectionViewUrl" attributeType="String" syncable="YES"/>
         <attribute name="primaryGenreName" attributeType="String" syncable="YES"/>
         <relationship name="artist" maxCount="1" deletionRule="Nullify" destinationEntity="ArtistEntity" inverseName="collections" inverseEntity="ArtistEntity" syncable="YES"/>
-        <relationship name="photo" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="PhotoEntity" inverseName="collection" inverseEntity="PhotoEntity" syncable="YES"/>
         <relationship name="tracks" toMany="YES" deletionRule="Cascade" destinationEntity="TrackEntity" inverseName="collection" inverseEntity="TrackEntity" syncable="YES"/>
-    </entity>
-    <entity name="PhotoEntity" syncable="YES">
-        <attribute name="photoData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
-        <relationship name="collection" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CollectionEntity" inverseName="photo" inverseEntity="CollectionEntity" syncable="YES"/>
     </entity>
     <entity name="SearchEntity" representedClassName=".SearchEntity" syncable="YES">
         <attribute name="term" attributeType="String" syncable="YES"/>
         <relationship name="tracks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TrackEntity" inverseName="searches" inverseEntity="TrackEntity" syncable="YES"/>
     </entity>
     <entity name="TrackEntity" representedClassName=".TrackEntity" syncable="YES">
+        <attribute name="previewData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <attribute name="previewUrl" attributeType="String" syncable="YES"/>
         <attribute name="trackId" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="trackName" attributeType="String" syncable="YES"/>
@@ -35,8 +32,7 @@
     <elements>
         <element name="ArtistEntity" positionX="-414" positionY="-18" width="128" height="103"/>
         <element name="CollectionEntity" positionX="-252" positionY="126" width="128" height="163"/>
-        <element name="PhotoEntity" positionX="-56" positionY="105" width="128" height="75"/>
-        <element name="TrackEntity" positionX="-56" positionY="234" width="128" height="133"/>
         <element name="SearchEntity" positionX="142" positionY="234" width="128" height="73"/>
+        <element name="TrackEntity" positionX="-56" positionY="234" width="128" height="148"/>
     </elements>
 </model>

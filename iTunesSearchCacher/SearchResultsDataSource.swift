@@ -75,7 +75,7 @@ class SearchResultsDataSource: NSObject {
     private var dataTask: NSURLSessionDataTask?
     private let mainContext: NSManagedObjectContext
     private var frc: NSFetchedResultsController?
-    private let contextObserver: AnyObject
+    //private let contextObserver: AnyObject
     
     deinit {
         dataTask?.cancel()
@@ -87,13 +87,13 @@ class SearchResultsDataSource: NSObject {
         self.mainContext = mainContext
         self.mainContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         
-        contextObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextDidSaveNotification, object: nil, queue: nil) {
-            notification in
-            
-            mainContext.performBlock({ () -> Void in
-                mainContext.mergeChangesFromContextDidSaveNotification(notification)
-            })
-        }
+//        contextObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextDidSaveNotification, object: nil, queue: nil) {
+//            notification in
+//            
+//            mainContext.performBlock({ () -> Void in
+//                mainContext.mergeChangesFromContextDidSaveNotification(notification)
+//            })
+//        }
         
         super.init()
     }
@@ -294,8 +294,7 @@ class SearchResultsDataSource: NSObject {
                     let allColections = recentCollection.existingCollectionEntities.map{ $0.collectionId }
                     let uColections = Set(allColections)
                     
-                    print("all\tColections.count = \(allColections.count)")
-                    print("unique\tColections.count = \(uColections.count)")
+                    assert(allColections.count == uColections.count, "collections are unique")
                 }
                 
                 stats.printResults()
