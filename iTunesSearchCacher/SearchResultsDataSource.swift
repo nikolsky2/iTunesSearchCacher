@@ -40,12 +40,12 @@ struct EntitiesParameterKey {
 
 protocol SearchResultsDataSourceDelegate: class {
     func didReloadResults()
-    func didUpdateItemAt(indexPath: NSIndexPath)
+    func didUpdateItemsAt(indexPaths: [NSIndexPath])
 }
 
 extension SearchResultsDataSource {
     var numberOfItems: Int {
-        if let controller = frc {
+        if let controller = tracksFetchResultsController {
             return controller.sections?[0].numberOfObjects ?? 0
         } else {
             return 0
@@ -54,7 +54,7 @@ extension SearchResultsDataSource {
     
     subscript(index: Int) -> TrackViewModel {
         get {
-            let trackEntity = frc!.objectAtIndexPath(NSIndexPath(forRow: index, inSection: 0)) as! TrackEntity
+            let trackEntity = tracksFetchResultsController!.objectAtIndexPath(NSIndexPath(forRow: index, inSection: 0)) as! TrackEntity
             return trackEntity
         }
     }
@@ -74,7 +74,10 @@ class SearchResultsDataSource: NSObject {
     weak var delegate: SearchResultsDataSourceDelegate?
     private var dataTask: NSURLSessionDataTask?
     private let mainContext: NSManagedObjectContext
-    private var frc: NSFetchedResultsController?
+    
+    private var tracksFetchResultsController: NSFetchedResultsController?
+    private var collectionsFetchResultsController: NSFetchedResultsController?
+    
     private let contextObserver: AnyObject
     
     deinit {
@@ -105,14 +108,14 @@ class SearchResultsDataSource: NSObject {
         case .Term(let searchTerm):
             let foundSearchEntity = findSearchObjectWithSearchTerm(searchTerm)
             if let searchEnitiy = foundSearchEntity {
-                performFetchResultsWith(searchEnitiy)
+                performFetchRequestWith(searchEnitiy)
                 self.delegate?.didReloadResults()
             } else {
                 fetchRequestWithTerm(searchTerm) { [unowned self] (rawDict: ([String : AnyObject])?) in
                     if let json = rawDict {
                         self.saveDataFromNetworkWith(searchTerm, json: json, completion: { (trackIds) in
                             let foundSearchEntity = self.findSearchObjectWithSearchTerm(searchTerm)
-                            self.performFetchResultsWith(foundSearchEntity!)
+                            self.performFetchRequestWith(foundSearchEntity!)
                             self.delegate?.didReloadResults()
                         })
                     }
@@ -129,15 +132,26 @@ class SearchResultsDataSource: NSObject {
         return searches.first
     }
     
-    private func performFetchResultsWith(search: SearchEntity) {
+    private func performFetchRequestWith(search: SearchEntity) {
         let trackFetchRequest = NSFetchRequest(entityName: TrackEntity.className)
         let trackFetchPredicate = NSPredicate(format: "ANY searches == %@", search)
         trackFetchRequest.predicate = trackFetchPredicate
         trackFetchRequest.sortDescriptors = [TrackEntity.defaultSortDescriptor]
         
-        frc = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
-        frc!.delegate = self
-        try! frc!.performFetch()
+        tracksFetchResultsController = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
+        tracksFetchResultsController!.delegate = self
+        try! tracksFetchResultsController!.performFetch()
+        
+        
+        let tracks = tracksFetchResultsController!.fetchedObjects as! [TrackEntity]
+        let collectionFetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
+        let collectionFetchPredicate = NSPredicate(format: "ANY tracks IN %@", Set(tracks))
+        collectionFetchRequest.predicate = collectionFetchPredicate
+        collectionFetchRequest.sortDescriptors = [CollectionEntity.defaultSortDescriptor]
+        
+        collectionsFetchResultsController = NSFetchedResultsController(fetchRequest: collectionFetchRequest, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
+        collectionsFetchResultsController!.delegate = self
+        try! collectionsFetchResultsController!.performFetch()
     }
     
     private func saveDataFromNetworkWith(searchTerm: String, json: JSONResultItem, completion: (trackIds: [NSNumber]) -> ()) {
@@ -346,12 +360,30 @@ class SearchResultsDataSource: NSObject {
 extension SearchResultsDataSource: NSFetchedResultsControllerDelegate {
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         
-        switch(type) {
-        case .Update:
-            self.delegate?.didUpdateItemAt(indexPath!)
+        switch controller {
+        case tracksFetchResultsController!:
+            switch(type) {
+            case .Update:
+                self.delegate?.didUpdateItemsAt([indexPath!])
+            default:
+                break
+            }
+        case collectionsFetchResultsController!:
+            
+            let tracks = tracksFetchResultsController!.fetchedObjects as! [TrackEntity]
+            let collection = anObject as! CollectionEntity
+            let updatedTracks = tracks.filter { $0.collection.collectionId == collection.collectionId }
+            let indices = updatedTracks.flatMap{ tracks.indexOf($0) }
+            let indexPaths = indices.map{ NSIndexPath(forItem: $0, inSection: 0) }
+            
+            if !indexPaths.isEmpty {
+                self.delegate?.didUpdateItemsAt(indexPaths)
+            }
         default:
             break
         }
+        
+        
     }
 }
 

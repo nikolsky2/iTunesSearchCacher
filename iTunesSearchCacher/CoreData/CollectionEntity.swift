@@ -30,3 +30,9 @@ class CollectionEntity: NSManagedObject {
         return false
     }
 }
+
+extension CollectionEntity {
+    static var defaultSortDescriptor: NSSortDescriptor {
+        return NSSortDescriptor(key: "collectionName", ascending: true, selector: #selector(NSString.caseInsensitiveCompare(_:)))
+    }
+}

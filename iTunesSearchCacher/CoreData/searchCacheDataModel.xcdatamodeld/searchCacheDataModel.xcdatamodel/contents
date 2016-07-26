@@ -30,7 +30,7 @@
         <relationship name="searches" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SearchEntity" inverseName="tracks" inverseEntity="SearchEntity" syncable="YES"/>
     </entity>
     <elements>
-        <element name="ArtistEntity" positionX="-414" positionY="-18" width="128" height="103"/>
+        <element name="ArtistEntity" positionX="-461" positionY="135" width="128" height="103"/>
         <element name="CollectionEntity" positionX="-252" positionY="126" width="128" height="163"/>
         <element name="SearchEntity" positionX="142" positionY="234" width="128" height="73"/>
         <element name="TrackEntity" positionX="-56" positionY="234" width="128" height="148"/>

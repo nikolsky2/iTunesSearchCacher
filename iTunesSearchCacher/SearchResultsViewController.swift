@@ -94,7 +94,7 @@ extension SearchResultsViewController: SearchResultsDataSourceDelegate {
         reloadData()
     }
     
-    func didUpdateItemAt(indexPath: NSIndexPath) {
-        contentTableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+    func didUpdateItemsAt(indexPaths: [NSIndexPath]) {
+        contentTableView.reloadRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
     }
 }
