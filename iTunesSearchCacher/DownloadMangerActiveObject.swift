@@ -9,11 +9,6 @@
 import Foundation
 import CoreData
 
-protocol ContentDownloadManaging {
-    func start()
-    func downloadFiles()
-}
-
 //MARK: -
 //MARK: DownloadMangerActiveObject
 
@@ -68,23 +63,10 @@ class DownloadMangerActiveObject: NSObject {
     }
 }
 
-extension DownloadMangerActiveObject: ContentDownloadManaging {
-    
-    func start() {
-        performAsyncOnPrivateQueue(contentDownloadManager.start)
-    }
-    
-    func downloadFiles() {
-        performSyncOnActiveObject({ contentDownloadManager in
-            contentDownloadManager.downloadFiles()
-        })
-    }
-}
-
 //MARK: -
 //MARK: ContentDownloadManager
 
-private class ContentDownloadManager: NSObject {
+class ContentDownloadManager: NSObject {
     
     let privateContext: NSManagedObjectContext
     let operationQueue: NSOperationQueue
@@ -94,6 +76,7 @@ private class ContentDownloadManager: NSObject {
     private var pendingQueue = [ContentFileDownloadTaskType]()
     private var activeTasks = [Int: ContentFileDownloadTaskType]()
     private var activeProgress = [Int: NSProgress]()
+    private var collectionsFetchResultsController: NSFetchedResultsController!
     
     deinit {
         print("ContentDownloadServiceContext deinit")
@@ -104,6 +87,11 @@ private class ContentDownloadManager: NSObject {
         self.privateContext = context.createBackgroundContext()
         self.webService = WebService()
         
+        let collectionFetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
+        let collectionFetchPredicate = NSPredicate(format: "artworkData = nil")
+        collectionFetchRequest.predicate = collectionFetchPredicate
+        collectionFetchRequest.sortDescriptors = [CollectionEntity.defaultSortDescriptor]
+        
         super.init()
         
         contextObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextDidSaveNotification, object: nil, queue: nil) {
@@ -112,16 +100,21 @@ private class ContentDownloadManager: NSObject {
             if let context = notification.object as? NSManagedObjectContext where context !== self.privateContext {
                 self.privateContext.performBlock({ () -> Void in
                     self.privateContext.mergeChangesFromContextDidSaveNotification(notification)
-                    
-                    //Append or start new donwloads
-                    dispatch_sync(operationQueue.underlyingQueue!) {
-                        self.downloadFiles()
-                    }
                 })
             }
         }
         
         webService.delegate = self
+        webService.start(operationQueue)
+        
+        collectionsFetchResultsController = NSFetchedResultsController(fetchRequest: collectionFetchRequest, managedObjectContext: privateContext, sectionNameKeyPath: nil, cacheName: nil)
+        collectionsFetchResultsController.delegate = self
+        try! collectionsFetchResultsController.performFetch()
+        
+        let collections = collectionsFetchResultsController.fetchedObjects as! [CollectionEntity]
+        pendingQueue.appendContentsOf(collections.map{ $0 as ContentFileDownloadTaskType})
+        
+        produceNewDownloads()
     }
     
     private var hasAvailableDownloadSlot: Bool {
@@ -129,17 +122,13 @@ private class ContentDownloadManager: NSObject {
     }
     
     private func produceNewDownloads() {
-        guard pendingQueue.count != 0 else { return }
-        
-        let oldCount = activeTasks.count
+        guard hasAvailableDownloadSlot && !pendingQueue.isEmpty else { return }
         
         while hasAvailableDownloadSlot && !pendingQueue.isEmpty {
             let task = pendingQueue.first!
             startDownloadTask(task)
             pendingQueue.removeFirst()
         }
-        
-        print("produceNewDownloads \(activeTasks.count - oldCount)")
     }
         
     private func startDownloadTask(task: ContentFileDownloadTaskType) {
@@ -152,7 +141,7 @@ private class ContentDownloadManager: NSObject {
     private func saveChangesWithAction(@noescape action: () -> Void ) throws {
         action()
         if privateContext.hasChanges {
-            privateContext.performBlockAndWait {
+            privateContext.performBlock {
                 do {
                     try self.privateContext.save()
                 }
@@ -193,27 +182,22 @@ extension ContentDownloadManager: BackgroundDownloadable {
     }
 }
 
-//MARK: - ContentDownloadManaging
-
-extension ContentDownloadManager: ContentDownloadManaging {
-    func start() {
-        webService.start(operationQueue)
-    }
-
-    func downloadFiles() {
-        let fetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
-        let allCollections = try! privateContext.executeFetchRequest(fetchRequest) as! [CollectionEntity]
-        pendingQueue = allCollections.filter{ $0.artworkData == nil }.map {$0 as ContentFileDownloadTaskType}
-        produceNewDownloads()
+extension ContentDownloadManager: NSFetchedResultsControllerDelegate {
+    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+        
+        switch type {
+        case .Insert:
+            dispatch_sync(operationQueue.underlyingQueue!) {
+                let collection = anObject as! ContentFileDownloadTaskType
+                self.pendingQueue.append(collection)
+                self.produceNewDownloads()
+            }
+        default:
+            break
+        }
     }
 }
 
 //MARK: -
-
-
-
-
-
-
 
 

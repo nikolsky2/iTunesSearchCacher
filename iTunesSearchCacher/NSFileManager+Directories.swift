@@ -29,5 +29,6 @@ extension NSFileManager {
         }
         
         assert(false, "error with creating a folder")
+        return NSURL()
     }
 }

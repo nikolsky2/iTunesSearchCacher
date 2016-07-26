@@ -44,11 +44,5 @@ extension AppManager: AppLifeCycle {
         
         coreDataStack = CoreDataStack()
         downloadManger = DownloadMangerActiveObject(context: coreDataStack.mainContext)
-        downloadManger.start()
-        
-        // Collection with no artwork
-        
-        downloadManger.downloadFiles()
-        
     }
 }
