@@ -75,7 +75,7 @@ class SearchResultsDataSource: NSObject {
     private var dataTask: NSURLSessionDataTask?
     private let mainContext: NSManagedObjectContext
     private var frc: NSFetchedResultsController?
-    //private let contextObserver: AnyObject
+    private let contextObserver: AnyObject
     
     deinit {
         dataTask?.cancel()
@@ -87,13 +87,13 @@ class SearchResultsDataSource: NSObject {
         self.mainContext = mainContext
         self.mainContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         
-//        contextObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextDidSaveNotification, object: nil, queue: nil) {
-//            notification in
-//            
-//            mainContext.performBlock({ () -> Void in
-//                mainContext.mergeChangesFromContextDidSaveNotification(notification)
-//            })
-//        }
+        contextObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextDidSaveNotification, object: nil, queue: nil) {
+            notification in
+            
+            mainContext.performBlock({ () -> Void in
+                mainContext.mergeChangesFromContextDidSaveNotification(notification)
+            })
+        }
         
         super.init()
     }
@@ -103,47 +103,41 @@ class SearchResultsDataSource: NSObject {
         case .All:
             break
         case .Term(let searchTerm):
-            
-            //Check local search term for this term
-            
-            //Fetch all search request
-            let searchFetchRequest = NSFetchRequest(entityName: SearchEntity.className)
-            let predicate = NSPredicate(format: "term == %@", searchTerm)
-            searchFetchRequest.predicate = predicate
-            let searches = try! mainContext.executeFetchRequest(searchFetchRequest) as! [SearchEntity]
-            let foundSearchEntity = searches.first
-            
+            let foundSearchEntity = findSearchObjectWithSearchTerm(searchTerm)
             if let searchEnitiy = foundSearchEntity {
-                
-                let trackFetchRequest = NSFetchRequest(entityName: TrackEntity.className)
-                let trackFetchPredicate = NSPredicate(format: "ANY searches == %@", searchEnitiy)
-                trackFetchRequest.predicate = trackFetchPredicate
-                trackFetchRequest.sortDescriptors = [TrackEntity.defaultSortDescriptor]
-                
-                frc = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
-                frc!.delegate = self
-                try! frc!.performFetch()
-                
+                performFetchResultsWith(searchEnitiy)
                 self.delegate?.didReloadResults()
-                
             } else {
-                //perform network request
                 fetchRequestWithTerm(searchTerm) { [unowned self] (rawDict: ([String : AnyObject])?) in
                     if let json = rawDict {
                         self.saveDataFromNetworkWith(searchTerm, json: json, completion: { (trackIds) in
-                            
-                            let trackFetchRequest = NSFetchRequest(entityName: TrackEntity.className)
-                            trackFetchRequest.sortDescriptors = [TrackEntity.defaultSortDescriptor]
-                            self.frc = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: self.mainContext, sectionNameKeyPath: nil, cacheName: nil)
-                            self.frc!.delegate = self
-                            try! self.frc!.performFetch()
-                            
+                            let foundSearchEntity = self.findSearchObjectWithSearchTerm(searchTerm)
+                            self.performFetchResultsWith(foundSearchEntity!)
                             self.delegate?.didReloadResults()
                         })
                     }
                 }
             }
         }
+    }
+    
+    private func findSearchObjectWithSearchTerm(searchTerm: String) -> SearchEntity? {
+        let searchFetchRequest = NSFetchRequest(entityName: SearchEntity.className)
+        let predicate = NSPredicate(format: "term == %@", searchTerm)
+        searchFetchRequest.predicate = predicate
+        let searches = try! mainContext.executeFetchRequest(searchFetchRequest) as! [SearchEntity]
+        return searches.first
+    }
+    
+    private func performFetchResultsWith(search: SearchEntity) {
+        let trackFetchRequest = NSFetchRequest(entityName: TrackEntity.className)
+        let trackFetchPredicate = NSPredicate(format: "ANY searches == %@", search)
+        trackFetchRequest.predicate = trackFetchPredicate
+        trackFetchRequest.sortDescriptors = [TrackEntity.defaultSortDescriptor]
+        
+        frc = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
+        frc!.delegate = self
+        try! frc!.performFetch()
     }
     
     private func saveDataFromNetworkWith(searchTerm: String, json: JSONResultItem, completion: (trackIds: [NSNumber]) -> ()) {

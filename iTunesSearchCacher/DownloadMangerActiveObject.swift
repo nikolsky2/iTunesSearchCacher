@@ -86,7 +86,6 @@ extension DownloadMangerActiveObject: ContentDownloadManaging {
 
 private class ContentDownloadManager: NSObject {
     
-    //let mainContext: NSManagedObjectContext
     let privateContext: NSManagedObjectContext
     let operationQueue: NSOperationQueue
     let webService: WebService
@@ -102,23 +101,24 @@ private class ContentDownloadManager: NSObject {
     
     private init(operationQueue: NSOperationQueue, context: NSManagedObjectContext) {
         self.operationQueue = operationQueue
-        //self.mainContext = context
         self.privateContext = context.createBackgroundContext()
         self.webService = WebService()
         
         super.init()
         
-        contextObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextDidSaveNotification, object: context, queue: nil) {
+        contextObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextDidSaveNotification, object: nil, queue: nil) {
             notification in
             
-            self.privateContext.performBlock({ () -> Void in
-                self.privateContext.mergeChangesFromContextDidSaveNotification(notification)
-                
-                //Append or start new donwloads
-                dispatch_sync(operationQueue.underlyingQueue!) {
-                    self.downloadFiles()
-                }
-            })
+            if let context = notification.object as? NSManagedObjectContext where context !== self.privateContext {
+                self.privateContext.performBlock({ () -> Void in
+                    self.privateContext.mergeChangesFromContextDidSaveNotification(notification)
+                    
+                    //Append or start new donwloads
+                    dispatch_sync(operationQueue.underlyingQueue!) {
+                        self.downloadFiles()
+                    }
+                })
+            }
         }
         
         webService.delegate = self
@@ -133,13 +133,10 @@ private class ContentDownloadManager: NSObject {
         
         let oldCount = activeTasks.count
         
-        try! performBulkyManagedObjectContextAction {
-            while hasAvailableDownloadSlot && !pendingQueue.isEmpty {
-                
-                let task = pendingQueue.first!
-                startDownloadTask(task)
-                pendingQueue.removeFirst()
-            }
+        while hasAvailableDownloadSlot && !pendingQueue.isEmpty {
+            let task = pendingQueue.first!
+            startDownloadTask(task)
+            pendingQueue.removeFirst()
         }
         
         print("produceNewDownloads \(activeTasks.count - oldCount)")
@@ -152,18 +149,9 @@ private class ContentDownloadManager: NSObject {
         activeTasks[taskIdentifier] = task
     }
     
-//MARK: - Context managment
-    
-    private var bulkyManagedObjectContextActionCounter = 0
-    func beginBulkyManagedObjectContextAction() {
-        bulkyManagedObjectContextActionCounter += 1
-    }
-    
-    func endBulkyManagedObjectContextAction() {
-        assert(bulkyManagedObjectContextActionCounter > 0)
-        bulkyManagedObjectContextActionCounter -= 1
-        if bulkyManagedObjectContextActionCounter == 0 && privateContext.hasChanges {
-            
+    private func saveChangesWithAction(@noescape action: () -> Void ) throws {
+        action()
+        if privateContext.hasChanges {
             privateContext.performBlockAndWait {
                 do {
                     try self.privateContext.save()
@@ -173,12 +161,6 @@ private class ContentDownloadManager: NSObject {
                 }
             }
         }
-    }
-    
-    func performBulkyManagedObjectContextAction(@noescape action: () throws -> Void ) throws {
-        beginBulkyManagedObjectContextAction()
-        try action()
-        endBulkyManagedObjectContextAction()
     }
 }
 
@@ -199,8 +181,10 @@ extension ContentDownloadManager: BackgroundDownloadable {
     
     func downloadDidFinish(taskIdentifier: Int, data: NSData) {
         
-        let collection = privateContext.objectWithID(activeTasks[taskIdentifier]!.fileID) as! CollectionEntity
-        collection.artworkData = data
+        try! saveChangesWithAction {
+            let collection = privateContext.objectWithID(activeTasks[taskIdentifier]!.fileID) as! CollectionEntity
+            collection.artworkData = data
+        }
         
         activeTasks.removeValueForKey(taskIdentifier)
         activeProgress.removeValueForKey(taskIdentifier)
