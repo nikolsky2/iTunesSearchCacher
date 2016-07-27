@@ -28,6 +28,10 @@ class SearchEntity: NSManagedObject {
     }
     
     static var defaultSortDescriptor: NSSortDescriptor {
-        return NSSortDescriptor(key: "term", ascending: true, selector: #selector(NSString.caseInsensitiveCompare(_:)))
+        return NSSortDescriptor(key: "searchDate", ascending: false)
+    }
+    
+    override func awakeFromInsert() {
+        searchDate = NSDate()
     }
 }

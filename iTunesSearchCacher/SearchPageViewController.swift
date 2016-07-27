@@ -32,6 +32,10 @@ class SearchPageViewController: UIViewController {
         //searchHistoryButton.enabled = false
     }
     
+    @IBAction func settingsButtonDidTouch(sender: AnyObject) {
+        AppManager.shared().fetchDataAgain()
+    }
+    
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         
         let segueType = SegueType(rawValue: segue.identifier!)!

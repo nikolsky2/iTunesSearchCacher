@@ -61,6 +61,10 @@ class DownloadMangerActiveObject: NSObject {
     private func performAsyncOnPrivateQueue(action:() -> Void) {
         operationQueue.addOperation(NSBlockOperation(block:action))
     }
+    
+    func performFetch() {
+        performAsyncOnPrivateQueue(contentDownloadManager.performFetch)
+    }
 }
 
 //MARK: -
@@ -87,11 +91,6 @@ class ContentDownloadManager: NSObject {
         self.privateContext = context.createBackgroundContext()
         self.webService = WebService()
         
-        let collectionFetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
-        let collectionFetchPredicate = NSPredicate(format: "artworkData = nil")
-        collectionFetchRequest.predicate = collectionFetchPredicate
-        collectionFetchRequest.sortDescriptors = [CollectionEntity.defaultSortDescriptor]
-        
         super.init()
         
         contextObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextDidSaveNotification, object: nil, queue: nil) {
@@ -107,14 +106,22 @@ class ContentDownloadManager: NSObject {
         webService.delegate = self
         webService.start(operationQueue)
         
+        performFetch()
+        
+        produceNewDownloads()
+    }
+    
+    func performFetch() {
+        let collectionFetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
+        let collectionFetchPredicate = NSPredicate(format: "hasArtworkData == NO")
+        collectionFetchRequest.predicate = collectionFetchPredicate
+        collectionFetchRequest.sortDescriptors = [CollectionEntity.defaultSortDescriptor]
         collectionsFetchResultsController = NSFetchedResultsController(fetchRequest: collectionFetchRequest, managedObjectContext: privateContext, sectionNameKeyPath: nil, cacheName: nil)
         collectionsFetchResultsController.delegate = self
         try! collectionsFetchResultsController.performFetch()
         
         let collections = collectionsFetchResultsController.fetchedObjects as! [CollectionEntity]
         pendingQueue.appendContentsOf(collections.map{ $0 as ContentFileDownloadTaskType})
-        
-        produceNewDownloads()
     }
     
     private var hasAvailableDownloadSlot: Bool {
@@ -124,18 +131,19 @@ class ContentDownloadManager: NSObject {
     private func produceNewDownloads() {
         guard hasAvailableDownloadSlot && !pendingQueue.isEmpty else { return }
         
+        print("Producing new tasks. Active: \(activeTasks.count), pending: \(pendingQueue.count)")
+        
         while hasAvailableDownloadSlot && !pendingQueue.isEmpty {
-            let task = pendingQueue.first!
+            let task = pendingQueue.removeLast()
             startDownloadTask(task)
-            pendingQueue.removeFirst()
         }
     }
         
     private func startDownloadTask(task: ContentFileDownloadTaskType) {
         let request = NSURLRequest(URL: task.fileURL)
         let taskIdentifier = webService.startDownloadTask(request, delegate: self)
-        print("taskIdentifier = \(taskIdentifier)")
         activeTasks[taskIdentifier] = task
+        print("startDownloadTask taskIdentifier = \(taskIdentifier)")
     }
     
     private func saveChangesWithAction(@noescape action: () -> Void ) throws {
@@ -152,6 +160,8 @@ class ContentDownloadManager: NSObject {
         }
     }
 }
+
+var times = 0
 
 extension ContentDownloadManager: BackgroundDownloadable {
     
@@ -173,12 +183,18 @@ extension ContentDownloadManager: BackgroundDownloadable {
         try! saveChangesWithAction {
             let collection = privateContext.objectWithID(activeTasks[taskIdentifier]!.fileID) as! CollectionEntity
             collection.artworkData = data
+            collection.hasArtworkData = true
+            times += 1
+            assert(data.length != 0, "hello")
         }
         
         activeTasks.removeValueForKey(taskIdentifier)
         activeProgress.removeValueForKey(taskIdentifier)
         
         produceNewDownloads()
+        
+        //print("Finished task. Active: \(activeTasks.count), pending: \(pendingQueue.count)")
+        print("saved \(times) times")
     }
 }
 
@@ -186,7 +202,7 @@ extension ContentDownloadManager: NSFetchedResultsControllerDelegate {
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         
         switch type {
-        case .Insert:
+        case .Insert, .Update, .Move:
             dispatch_sync(operationQueue.underlyingQueue!) {
                 let collection = anObject as! ContentFileDownloadTaskType
                 self.pendingQueue.append(collection)

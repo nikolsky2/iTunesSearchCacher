@@ -69,11 +69,10 @@ private let searchTermPropertyName = "term"
 
 class SearchResultsDataSource: NSObject {
     
-    typealias JSONResultItem = [String : AnyObject]
-    
     weak var delegate: SearchResultsDataSourceDelegate?
     private var dataTask: NSURLSessionDataTask?
     private let mainContext: NSManagedObjectContext
+    private let resultsSerialiser: CoreDataSearchResultsSerialiser
     
     private var tracksFetchResultsController: NSFetchedResultsController?
     private var collectionsFetchResultsController: NSFetchedResultsController?
@@ -98,6 +97,8 @@ class SearchResultsDataSource: NSObject {
             })
         }
         
+        resultsSerialiser = CoreDataSearchResultsSerialiser(mainContext: mainContext)
+        
         super.init()
     }
     
@@ -113,10 +114,12 @@ class SearchResultsDataSource: NSObject {
             } else {
                 fetchRequestWithTerm(searchTerm) { [unowned self] (rawDict: ([String : AnyObject])?) in
                     if let json = rawDict {
-                        self.saveDataFromNetworkWith(searchTerm, json: json, completion: { (trackIds) in
-                            let foundSearchEntity = self.findSearchObjectWithSearchTerm(searchTerm)
-                            self.performFetchRequestWith(foundSearchEntity!)
-                            self.delegate?.didReloadResults()
+                        self.resultsSerialiser.saveDataFromNetworkWith(searchTerm, json: json, completion: { (trackIds) in
+                            dispatch_async(dispatch_get_main_queue()) {
+                                let foundSearchEntity = self.findSearchObjectWithSearchTerm(searchTerm)
+                                self.performFetchRequestWith(foundSearchEntity!)
+                                self.delegate?.didReloadResults()
+                            }
                         })
                     }
                 }
@@ -137,11 +140,11 @@ class SearchResultsDataSource: NSObject {
         let trackFetchPredicate = NSPredicate(format: "ANY searches == %@", search)
         trackFetchRequest.predicate = trackFetchPredicate
         trackFetchRequest.sortDescriptors = [TrackEntity.defaultSortDescriptor]
+        trackFetchRequest.relationshipKeyPathsForPrefetching = ["collection"]
         
         tracksFetchResultsController = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
         tracksFetchResultsController!.delegate = self
         try! tracksFetchResultsController!.performFetch()
-        
         
         let tracks = tracksFetchResultsController!.fetchedObjects as! [TrackEntity]
         let collectionFetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
@@ -152,172 +155,6 @@ class SearchResultsDataSource: NSObject {
         collectionsFetchResultsController = NSFetchedResultsController(fetchRequest: collectionFetchRequest, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
         collectionsFetchResultsController!.delegate = self
         try! collectionsFetchResultsController!.performFetch()
-    }
-    
-    private func saveDataFromNetworkWith(searchTerm: String, json: JSONResultItem, completion: (trackIds: [NSNumber]) -> ()) {
-        
-        if let rawResults = json["results"] as? [JSONResultItem] where rawResults.count > 0 {
-            
-            let privateContext = mainContext.createBackgroundContext()
-            privateContext.performBlock {
-                
-                struct LocalCollection {
-                    var existingTrackEntities: [TrackEntity]
-                    var existingCollectionEntities: [CollectionEntity]
-                    var existingArtistEntities: [ArtistEntity]
-                }
-                
-                var recentCollection = LocalCollection(existingTrackEntities: [], existingCollectionEntities: [], existingArtistEntities: [])
-                
-                // Valid data
-                let validResults = rawResults.flatMap{ iTunesJSONResult(rawValue: $0) }
-                
-                //Track ids for fetching
-                let rawTrackIds = validResults.map{ $0.trackId }
-                
-                //Collections ids for fetching
-                let rawCollectionIds = Array(Set(validResults.map{ $0.collectionId }))
-                
-                //Artists ids for fetching
-                let rawArtistsIds = Array(Set(validResults.map{ $0.artistId }))
-                
-                struct Stats {
-                    var insertedTracks = 0
-                    var insertedCollections = 0
-                    var insertedArtists = 0
-                    var updatedCollections = 0
-                    var updatededArtists = 0
-                    
-                    func printResults() {
-                        print("insertedTracks = \(insertedTracks)")
-                        print("insertedCollections = \(insertedCollections)")
-                        print("insertedArtists = \(insertedArtists)")
-                        print("updatedCollections = \(updatedCollections)")
-                        print("updatededArtists = \(updatededArtists)")
-                        print("----------------------------------------------")
-                    }
-                }
-                
-                var stats = Stats()
-
-                if validResults.count > 0 {
-                    
-                    //Fetch all tracks
-                    let trackFetchRequest = NSFetchRequest(entityName: TrackEntity.className)
-                    trackFetchRequest.predicate = NSPredicate(format: "trackId IN %@", rawTrackIds)
-                    let tracks = try! privateContext.executeFetchRequest(trackFetchRequest) as! [TrackEntity]
-                    
-                    //Fetch all collections
-                    let collectionFetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
-                    collectionFetchRequest.predicate = NSPredicate(format: "collectionId IN %@", rawCollectionIds)
-                    let collections = try! privateContext.executeFetchRequest(collectionFetchRequest) as! [CollectionEntity]
-                    
-                    //Fetch all artists
-                    let artistFetchRequest = NSFetchRequest(entityName: ArtistEntity.className)
-                    artistFetchRequest.predicate = NSPredicate(format: "artistId IN %@", rawArtistsIds)
-                    let artists = try! privateContext.executeFetchRequest(artistFetchRequest) as! [ArtistEntity]
-                    
-                    recentCollection.existingTrackEntities.appendContentsOf(tracks)
-                    recentCollection.existingCollectionEntities.appendContentsOf(collections)
-                    recentCollection.existingArtistEntities.appendContentsOf(artists)
-                    
-                    let searchEntity: SearchEntity = privateContext.createEntity()
-                    searchEntity.term = searchTerm
-                    
-                    for item in validResults {
-                        
-                        // Track
-                        var trackEntity: TrackEntity!
-                        let foundTracks = recentCollection.existingTrackEntities.filter{ $0.trackId == item.trackId.longLongValue }.first
-                        if foundTracks != nil {
-                            
-                            //skip existing objects
-                            
-                            continue
-                        } else {
-                            let track: TrackEntity = privateContext.createEntity()
-                            trackEntity = track
-                            recentCollection.existingTrackEntities.append(trackEntity)
-                            stats.insertedTracks = stats.insertedTracks + 1
-                        }
-                        
-                        trackEntity.previewUrl = item.previewUrl
-                        trackEntity.trackId = item.trackId.longLongValue
-                        trackEntity.trackName = item.trackName
-                        trackEntity.trackNumber = item.trackNumber.longLongValue
-                        
-                        searchEntity.appendTrack(trackEntity)
-                        
-                        // Collection
-                        
-                        var collectionEntity: CollectionEntity!
-                        let foundCollections = recentCollection.existingCollectionEntities.filter{ $0.collectionId == item.collectionId.longLongValue }.first
-                        if foundCollections != nil {
-                            collectionEntity = foundCollections
-                            stats.updatedCollections = stats.updatedCollections + 1
-                        } else {
-                            let collection: CollectionEntity = privateContext.createEntity()
-                            collectionEntity = collection
-                            recentCollection.existingCollectionEntities.append(collectionEntity)
-                            stats.insertedCollections = stats.insertedCollections + 1
-                        }
-                        
-                        collectionEntity.artworkUrl = item.artworkUrl
-                        collectionEntity.collectionId = item.collectionId.longLongValue
-                        collectionEntity.collectionName = item.collectionName
-                        collectionEntity.collectionViewUrl = item.collectionViewUrl
-                        collectionEntity.primaryGenreName = item.primaryGenreName
-                        
-                        //Establish Collection - Tracks relationship
-                        collectionEntity.appendTrack(trackEntity)
-                        
-                        // Artist
-                        
-                        var artistEntity: ArtistEntity!
-                        let foundArtists = recentCollection.existingArtistEntities.filter{ $0.artistId == item.artistId.longLongValue }.first
-                        if foundArtists != nil {
-                            artistEntity = foundArtists
-                            stats.updatededArtists = stats.updatededArtists + 1
-                        } else {
-                            let artist: ArtistEntity = privateContext.createEntity()
-                            artistEntity = artist
-                            recentCollection.existingArtistEntities.append(artistEntity)
-                            stats.insertedArtists = stats.insertedArtists + 1
-                        }
-                        
-                        artistEntity.artistId = item.artistId.longLongValue
-                        artistEntity.artistName = item.artistName
-                        artistEntity.artistViewUrl = item.artistViewUrl
-                        
-                        //Establish Artist - Collections relationship
-                        artistEntity.appendCollection(collectionEntity)
-                        
-                        //Establish Collection - Artist relationship
-                        collectionEntity.artist = artistEntity
-                        
-                        //Establish Track - Collection relationship
-                        trackEntity.collection = collectionEntity
-                    }
-                    
-                    let allColections = recentCollection.existingCollectionEntities.map{ $0.collectionId }
-                    let uColections = Set(allColections)
-                    
-                    assert(allColections.count == uColections.count, "collections are unique")
-                }
-                
-                stats.printResults()
-                
-                do {
-                    try privateContext.save()
-                    dispatch_async(dispatch_get_main_queue()) { completion(trackIds: rawTrackIds) }
-                } catch {
-                    fatalError("Failure to save context: \(error)")
-                }
-            }
-        } else {
-            dispatch_async(dispatch_get_main_queue()) { completion(trackIds: []) }
-            
-        }
     }
     
     private func fetchRequestWithTerm(term: String, completionBlock:([String: AnyObject])? -> ()) {
@@ -332,6 +169,7 @@ class SearchResultsDataSource: NSObject {
         
         dataTask = session.dataTaskWithRequest(NSURLRequest(URL: urlComponents.URL!)) { (data: NSData?, response: NSURLResponse?, error: NSError?) in
             
+            typealias JSONResultItem = [String : AnyObject]
             var result: JSONResultItem? = nil
             
             if error == nil {
@@ -382,8 +220,6 @@ extension SearchResultsDataSource: NSFetchedResultsControllerDelegate {
         default:
             break
         }
-        
-        
     }
 }
 

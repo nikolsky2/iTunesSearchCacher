@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F50B804E1D485E2000BAD9A6 /* AudioPreviewEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50B804A1D485E2000BAD9A6 /* AudioPreviewEntity+CoreDataProperties.swift */; };
+		F50B804F1D485E2100BAD9A6 /* AudioPreviewEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50B804B1D485E2000BAD9A6 /* AudioPreviewEntity.swift */; };
+		F50B80531D486E8C00BAD9A6 /* CoreDataSearchResultsSerialiser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50B80521D486E8C00BAD9A6 /* CoreDataSearchResultsSerialiser.swift */; };
 		F52410521D313DDF00174B89 /* SearchPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52410511D313DDF00174B89 /* SearchPageViewController.swift */; };
 		F52410611D313EE300174B89 /* SearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52410601D313EE300174B89 /* SearchResultsViewController.swift */; };
 		F54BB5681D30E2F0004411A1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54BB5671D30E2F0004411A1 /* AppDelegate.swift */; };
@@ -37,6 +40,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		F50B804A1D485E2000BAD9A6 /* AudioPreviewEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AudioPreviewEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		F50B804B1D485E2000BAD9A6 /* AudioPreviewEntity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioPreviewEntity.swift; sourceTree = "<group>"; };
+		F50B80521D486E8C00BAD9A6 /* CoreDataSearchResultsSerialiser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CoreDataSearchResultsSerialiser.swift; path = CoreData/CoreDataSearchResultsSerialiser.swift; sourceTree = "<group>"; };
 		F52410511D313DDF00174B89 /* SearchPageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchPageViewController.swift; sourceTree = "<group>"; };
 		F52410601D313EE300174B89 /* SearchResultsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsViewController.swift; sourceTree = "<group>"; };
 		F54BB5641D30E2F0004411A1 /* iTunesSearchCacher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iTunesSearchCacher.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -83,6 +89,7 @@
 			isa = PBXGroup;
 			children = (
 				F5F51A421D31F1E700EB8135 /* SearchResultsDataSource.swift */,
+				F50B80521D486E8C00BAD9A6 /* CoreDataSearchResultsSerialiser.swift */,
 				F5FD032C1D3870200095C92D /* Trackable.swift */,
 				F54BB57F1D31249C004411A1 /* iTunesJSONResult.swift */,
 				F5F51A661D34824500EB8135 /* NSObject+ClassName.swift */,
@@ -150,6 +157,8 @@
 				F5F51A5D1D33B50500EB8135 /* CollectionEntity.swift */,
 				F5F51A5B1D33B50500EB8135 /* TrackEntity.swift */,
 				F5FD032F1D38A7890095C92D /* SearchEntity.swift */,
+				F50B804B1D485E2000BAD9A6 /* AudioPreviewEntity.swift */,
+				F50B804A1D485E2000BAD9A6 /* AudioPreviewEntity+CoreDataProperties.swift */,
 				F5FD032E1D38A7890095C92D /* SearchEntity+CoreDataProperties.swift */,
 				F5F51A581D33B50500EB8135 /* ArtistEntity+CoreDataProperties.swift */,
 				F5F51A5C1D33B50500EB8135 /* CollectionEntity+CoreDataProperties.swift */,
@@ -210,6 +219,7 @@
 				TargetAttributes = {
 					F54BB5631D30E2F0004411A1 = {
 						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = 2L5E585DU5;
 					};
 				};
 			};
@@ -251,6 +261,7 @@
 			files = (
 				F5FD035F1D3EF0DB0095C92D /* WebService.swift in Sources */,
 				F54BB57A1D30E3C9004411A1 /* CoreDataStack.swift in Sources */,
+				F50B804E1D485E2000BAD9A6 /* AudioPreviewEntity+CoreDataProperties.swift in Sources */,
 				F52410611D313EE300174B89 /* SearchResultsViewController.swift in Sources */,
 				F5F51A611D33B50500EB8135 /* TrackEntity.swift in Sources */,
 				F5FD032D1D3870200095C92D /* Trackable.swift in Sources */,
@@ -264,8 +275,10 @@
 				F5F51A5E1D33B50500EB8135 /* ArtistEntity+CoreDataProperties.swift in Sources */,
 				F54BB57C1D30E40F004411A1 /* AppManager.swift in Sources */,
 				F5B84FC91D431E9E002FC782 /* NSFileManager+Directories.swift in Sources */,
+				F50B804F1D485E2100BAD9A6 /* AudioPreviewEntity.swift in Sources */,
 				F5F51A671D34824500EB8135 /* NSObject+ClassName.swift in Sources */,
 				F52410521D313DDF00174B89 /* SearchPageViewController.swift in Sources */,
+				F50B80531D486E8C00BAD9A6 /* CoreDataSearchResultsSerialiser.swift in Sources */,
 				F54BB5801D31249C004411A1 /* iTunesJSONResult.swift in Sources */,
 				F5F51A431D31F1E700EB8135 /* SearchResultsDataSource.swift in Sources */,
 				F5FD03351D38B3BB0095C92D /* SearchTermsViewController.swift in Sources */,
@@ -379,10 +392,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = iTunesSearchCacher/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = happyTuna.iTunesSearchCacher;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -390,10 +406,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = iTunesSearchCacher/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = happyTuna.iTunesSearchCacher;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};

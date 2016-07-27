@@ -55,12 +55,24 @@ class WebService: NSObject {
     
 }
 
+// MARK: - NSURLSessionTaskDelegate
+
+extension WebService: NSURLSessionTaskDelegate {
+    func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
+        if let theError = error where theError.domain == NSURLErrorDomain && theError.code == NSURLErrorCancelled {
+            print("URLSession task:\(task) did cancel")
+        } else if error != nil {
+            print("URLSession task:\(task) didCompleteWithError:\(error)")
+        }
+    }
+}
+
 // MARK: - NSURLSessionDownloadDelegate
 
 extension WebService: NSURLSessionDownloadDelegate {
     
     func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL) {
-        print("URLSession downloadTask:\(downloadTask) didFinishDownloadingToURL:\(location)")
+        //print("URLSession downloadTask:\(downloadTask) didFinishDownloadingToURL:\(location)")
         
         let data = NSData(contentsOfFile: location.path!)!
         delegate?.downloadDidFinish(downloadTask.taskIdentifier, data: data)

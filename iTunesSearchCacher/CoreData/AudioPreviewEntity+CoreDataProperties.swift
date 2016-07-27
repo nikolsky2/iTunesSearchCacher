@@ -1,8 +1,8 @@
 //
-//  SearchEntity+CoreDataProperties.swift
+//  AudioPreviewEntity+CoreDataProperties.swift
 //  iTunesSearchCacher
 //
-//  Created by Sergey Nikolsky on 26/07/2016.
+//  Created by Sergey Nikolsky on 27/07/2016.
 //  Copyright © 2016 happyTuna. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -12,10 +12,10 @@
 import Foundation
 import CoreData
 
-extension SearchEntity {
+extension AudioPreviewEntity {
 
-    @NSManaged var term: String
-    @NSManaged var searchDate: NSDate
-    @NSManaged var tracks: NSSet?
+    @NSManaged var previewData: NSData?
+    @NSManaged var hasData: Bool
+    @NSManaged var track: TrackEntity
 
 }

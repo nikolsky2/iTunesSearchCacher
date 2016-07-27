@@ -18,4 +18,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         return true
     }
+    
+    func applicationDidEnterBackground(application: UIApplication) {
+        appManager.mainContext.refreshAllObjects()
+    }
+    
+    func applicationDidReceiveMemoryWarning(application: UIApplication) {
+        appManager.mainContext.refreshAllObjects()
+    }
 }

@@ -17,7 +17,7 @@ protocol AppLifeCycle: class {
 class AppManager: NSObject {
     
     private var coreDataStack: CoreDataStack!
-    private var downloadManger: DownloadMangerActiveObject!
+    private var downloadManager: DownloadMangerActiveObject!
     
     var mainContext: NSManagedObjectContext {
         return coreDataStack.mainContext
@@ -32,6 +32,10 @@ class AppManager: NSObject {
         let window = UIWindow(frame: UIScreen.mainScreen().bounds)
         return window
     }()
+    
+    func fetchDataAgain() {
+        downloadManager.performFetch()
+    }
 }
 
 extension AppManager: AppLifeCycle {
@@ -43,6 +47,6 @@ extension AppManager: AppLifeCycle {
         window.makeKeyAndVisible()
         
         coreDataStack = CoreDataStack()
-        downloadManger = DownloadMangerActiveObject(context: coreDataStack.mainContext)
+        downloadManager = DownloadMangerActiveObject(context: coreDataStack.mainContext)
     }
 }

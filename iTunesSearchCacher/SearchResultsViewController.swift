@@ -86,7 +86,10 @@ extension SearchResultsViewController: UITableViewDataSource {
 }
 
 extension SearchResultsViewController: UITableViewDelegate {
-    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        let track = dataSource[indexPath.row] as! TrackEntity
+        print(track.collection)
+    }
 }
 
 extension SearchResultsViewController: SearchResultsDataSourceDelegate {

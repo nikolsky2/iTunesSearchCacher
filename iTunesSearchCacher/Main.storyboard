@@ -81,6 +81,9 @@
                                 <rect key="frame" x="559" y="11" width="21" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" image="settings"/>
+                                <connections>
+                                    <action selector="settingsButtonDidTouch:" destination="sAo-ZF-VCV" eventType="touchUpInside" id="9kL-hQ-WRt"/>
+                                </connections>
                             </button>
                         </barButtonItem>
                     </navigationItem>

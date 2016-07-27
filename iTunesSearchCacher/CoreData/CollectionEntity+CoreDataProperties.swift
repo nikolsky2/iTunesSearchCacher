@@ -2,7 +2,7 @@
 //  CollectionEntity+CoreDataProperties.swift
 //  iTunesSearchCacher
 //
-//  Created by Sergey Nikolsky on 25/07/2016.
+//  Created by Sergey Nikolsky on 27/07/2016.
 //  Copyright © 2016 happyTuna. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -20,6 +20,7 @@ extension CollectionEntity {
     @NSManaged var collectionViewUrl: String
     @NSManaged var primaryGenreName: String
     @NSManaged var artworkData: NSData?
+    @NSManaged var hasArtworkData: Bool
     @NSManaged var artist: ArtistEntity
     @NSManaged var tracks: NSSet
 

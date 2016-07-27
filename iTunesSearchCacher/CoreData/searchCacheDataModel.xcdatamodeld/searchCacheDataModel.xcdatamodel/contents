@@ -6,33 +6,41 @@
         <attribute name="artistViewUrl" attributeType="String" syncable="YES"/>
         <relationship name="collections" toMany="YES" deletionRule="Cascade" destinationEntity="CollectionEntity" inverseName="artist" inverseEntity="CollectionEntity" syncable="YES"/>
     </entity>
+    <entity name="AudioPreviewEntity" representedClassName=".AudioPreviewEntity" syncable="YES">
+        <attribute name="hasData" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="previewData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
+        <relationship name="track" maxCount="1" deletionRule="Nullify" destinationEntity="TrackEntity" inverseName="preview" inverseEntity="TrackEntity" syncable="YES"/>
+    </entity>
     <entity name="CollectionEntity" representedClassName=".CollectionEntity" syncable="YES">
         <attribute name="artworkData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <attribute name="artworkUrl" attributeType="String" syncable="YES"/>
         <attribute name="collectionId" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="collectionName" attributeType="String" syncable="YES"/>
         <attribute name="collectionViewUrl" attributeType="String" syncable="YES"/>
+        <attribute name="hasArtworkData" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="primaryGenreName" attributeType="String" syncable="YES"/>
         <relationship name="artist" maxCount="1" deletionRule="Nullify" destinationEntity="ArtistEntity" inverseName="collections" inverseEntity="ArtistEntity" syncable="YES"/>
         <relationship name="tracks" toMany="YES" deletionRule="Cascade" destinationEntity="TrackEntity" inverseName="collection" inverseEntity="TrackEntity" syncable="YES"/>
     </entity>
     <entity name="SearchEntity" representedClassName=".SearchEntity" syncable="YES">
+        <attribute name="searchDate" attributeType="Date" syncable="YES"/>
         <attribute name="term" attributeType="String" syncable="YES"/>
         <relationship name="tracks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TrackEntity" inverseName="searches" inverseEntity="TrackEntity" syncable="YES"/>
     </entity>
     <entity name="TrackEntity" representedClassName=".TrackEntity" syncable="YES">
-        <attribute name="previewData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <attribute name="previewUrl" attributeType="String" syncable="YES"/>
         <attribute name="trackId" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="trackName" attributeType="String" syncable="YES"/>
         <attribute name="trackNumber" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <relationship name="collection" maxCount="1" deletionRule="Nullify" destinationEntity="CollectionEntity" inverseName="tracks" inverseEntity="CollectionEntity" syncable="YES"/>
+        <relationship name="preview" maxCount="1" deletionRule="Nullify" destinationEntity="AudioPreviewEntity" inverseName="track" inverseEntity="AudioPreviewEntity" syncable="YES"/>
         <relationship name="searches" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SearchEntity" inverseName="tracks" inverseEntity="SearchEntity" syncable="YES"/>
     </entity>
     <elements>
-        <element name="ArtistEntity" positionX="-461" positionY="135" width="128" height="103"/>
-        <element name="CollectionEntity" positionX="-252" positionY="126" width="128" height="163"/>
-        <element name="SearchEntity" positionX="142" positionY="234" width="128" height="73"/>
-        <element name="TrackEntity" positionX="-56" positionY="234" width="128" height="148"/>
+        <element name="ArtistEntity" positionX="-281" positionY="102" width="128" height="105"/>
+        <element name="AudioPreviewEntity" positionX="-342" positionY="495" width="128" height="90"/>
+        <element name="CollectionEntity" positionX="-488" positionY="164" width="128" height="178"/>
+        <element name="SearchEntity" positionX="52" positionY="407" width="128" height="88"/>
+        <element name="TrackEntity" positionX="-126" positionY="234" width="128" height="150"/>
     </elements>
 </model>
