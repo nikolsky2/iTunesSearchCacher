@@ -39,7 +39,7 @@
     <elements>
         <element name="ArtistEntity" positionX="-281" positionY="102" width="128" height="105"/>
         <element name="AudioPreviewEntity" positionX="-342" positionY="495" width="128" height="90"/>
-        <element name="CollectionEntity" positionX="-488" positionY="164" width="128" height="178"/>
+        <element name="CollectionEntity" positionX="-488" positionY="164" width="128" height="180"/>
         <element name="SearchEntity" positionX="52" positionY="407" width="128" height="88"/>
         <element name="TrackEntity" positionX="-126" positionY="234" width="128" height="150"/>
     </elements>

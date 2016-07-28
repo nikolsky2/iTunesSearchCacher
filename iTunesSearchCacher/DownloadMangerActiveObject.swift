@@ -131,25 +131,26 @@ class ContentDownloadManager: NSObject {
     private func produceNewDownloads() {
         guard hasAvailableDownloadSlot && !pendingQueue.isEmpty else { return }
         
-        print("Producing new tasks. Active: \(activeTasks.count), pending: \(pendingQueue.count)")
-        
         while hasAvailableDownloadSlot && !pendingQueue.isEmpty {
             let task = pendingQueue.removeLast()
             startDownloadTask(task)
         }
+        
+        print("Produced new tasks. Active: \(activeTasks.count), pending: \(pendingQueue.count)")
     }
         
     private func startDownloadTask(task: ContentFileDownloadTaskType) {
         let request = NSURLRequest(URL: task.fileURL)
         let taskIdentifier = webService.startDownloadTask(request, delegate: self)
         activeTasks[taskIdentifier] = task
+        
         print("startDownloadTask taskIdentifier = \(taskIdentifier)")
     }
     
     private func saveChangesWithAction(@noescape action: () -> Void ) throws {
         action()
         if privateContext.hasChanges {
-            privateContext.performBlock {
+            privateContext.performBlockAndWait {
                 do {
                     try self.privateContext.save()
                 }
@@ -160,8 +161,6 @@ class ContentDownloadManager: NSObject {
         }
     }
 }
-
-var times = 0
 
 extension ContentDownloadManager: BackgroundDownloadable {
     
@@ -184,8 +183,6 @@ extension ContentDownloadManager: BackgroundDownloadable {
             let collection = privateContext.objectWithID(activeTasks[taskIdentifier]!.fileID) as! CollectionEntity
             collection.artworkData = data
             collection.hasArtworkData = true
-            times += 1
-            assert(data.length != 0, "hello")
         }
         
         activeTasks.removeValueForKey(taskIdentifier)
@@ -193,8 +190,7 @@ extension ContentDownloadManager: BackgroundDownloadable {
         
         produceNewDownloads()
         
-        //print("Finished task. Active: \(activeTasks.count), pending: \(pendingQueue.count)")
-        print("saved \(times) times")
+        print("Finished task. Active: \(activeTasks.count), pending: \(pendingQueue.count)")
     }
 }
 
@@ -202,7 +198,7 @@ extension ContentDownloadManager: NSFetchedResultsControllerDelegate {
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         
         switch type {
-        case .Insert, .Update, .Move:
+        case .Insert:
             dispatch_sync(operationQueue.underlyingQueue!) {
                 let collection = anObject as! ContentFileDownloadTaskType
                 self.pendingQueue.append(collection)
