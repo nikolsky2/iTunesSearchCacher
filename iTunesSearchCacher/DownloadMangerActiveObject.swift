@@ -61,10 +61,6 @@ class DownloadMangerActiveObject: NSObject {
     private func performAsyncOnPrivateQueue(action:() -> Void) {
         operationQueue.addOperation(NSBlockOperation(block:action))
     }
-    
-    func performFetch() {
-        performAsyncOnPrivateQueue(contentDownloadManager.performFetch)
-    }
 }
 
 //MARK: -
@@ -77,10 +73,12 @@ class ContentDownloadManager: NSObject {
     let webService: WebService
     private var contextObserver: AnyObject!
 
-    private var pendingQueue = [ContentFileDownloadTaskType]()
-    private var activeTasks = [Int: ContentFileDownloadTaskType]()
+    private var pendingQueue = PriorityQueue<ContentFileDownloadTask>({ $0.priority > $1.priority })
+    private var activeTasks = [Int: ContentFileDownloadTask]()
     private var activeProgress = [Int: NSProgress]()
+    
     private var collectionsFetchResultsController: NSFetchedResultsController!
+    private var audioFetchResultsController: NSFetchedResultsController!
     
     deinit {
         print("ContentDownloadServiceContext deinit")
@@ -106,22 +104,36 @@ class ContentDownloadManager: NSObject {
         webService.delegate = self
         webService.start(operationQueue)
         
-        performFetch()
+        performCollectionsFetch()
+        performAudioFetch()
         
         produceNewDownloads()
     }
     
-    func performFetch() {
-        let collectionFetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
+    private func performCollectionsFetch() {
+        let fetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
         let collectionFetchPredicate = NSPredicate(format: "hasArtworkData == NO")
-        collectionFetchRequest.predicate = collectionFetchPredicate
-        collectionFetchRequest.sortDescriptors = [CollectionEntity.defaultSortDescriptor]
-        collectionsFetchResultsController = NSFetchedResultsController(fetchRequest: collectionFetchRequest, managedObjectContext: privateContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchRequest.predicate = collectionFetchPredicate
+        fetchRequest.sortDescriptors = [CollectionEntity.defaultSortDescriptor]
+        collectionsFetchResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: privateContext, sectionNameKeyPath: nil, cacheName: nil)
         collectionsFetchResultsController.delegate = self
         try! collectionsFetchResultsController.performFetch()
         
         let collections = collectionsFetchResultsController.fetchedObjects as! [CollectionEntity]
-        pendingQueue.appendContentsOf(collections.map{ $0 as ContentFileDownloadTaskType})
+        collections.forEach { pendingQueue.push($0) }
+    }
+    
+    func performAudioFetch() {
+        let fetchRequest = NSFetchRequest(entityName: AudioPreviewEntity.className)
+        let collectionFetchPredicate = NSPredicate(format: "hasData == NO")
+        fetchRequest.predicate = collectionFetchPredicate
+        fetchRequest.sortDescriptors = [AudioPreviewEntity.defaultSortDescriptor]
+        audioFetchResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: privateContext, sectionNameKeyPath: nil, cacheName: nil)
+        audioFetchResultsController.delegate = self
+        try! audioFetchResultsController.performFetch()
+        
+        let previews = audioFetchResultsController.fetchedObjects as! [AudioPreviewEntity]
+        previews.forEach { pendingQueue.push($0) }
     }
     
     private var hasAvailableDownloadSlot: Bool {
@@ -132,18 +144,17 @@ class ContentDownloadManager: NSObject {
         guard hasAvailableDownloadSlot && !pendingQueue.isEmpty else { return }
         
         while hasAvailableDownloadSlot && !pendingQueue.isEmpty {
-            let task = pendingQueue.removeLast()
+            let task = pendingQueue.pop()!
             startDownloadTask(task)
         }
         
         print("Produced new tasks. Active: \(activeTasks.count), pending: \(pendingQueue.count)")
     }
         
-    private func startDownloadTask(task: ContentFileDownloadTaskType) {
+    private func startDownloadTask(task: ContentFileDownloadTask) {
         let request = NSURLRequest(URL: task.fileURL)
-        let taskIdentifier = webService.startDownloadTask(request, delegate: self)
+        let taskIdentifier = webService.startDownloadTask(request, priority: task.priority)
         activeTasks[taskIdentifier] = task
-        
         print("startDownloadTask taskIdentifier = \(taskIdentifier)")
     }
     
@@ -200,8 +211,8 @@ extension ContentDownloadManager: NSFetchedResultsControllerDelegate {
         switch type {
         case .Insert:
             dispatch_sync(operationQueue.underlyingQueue!) {
-                let collection = anObject as! ContentFileDownloadTaskType
-                self.pendingQueue.append(collection)
+                let collection = anObject as! ContentFileDownloadTask
+                self.pendingQueue.push(collection)
                 self.produceNewDownloads()
             }
         default:

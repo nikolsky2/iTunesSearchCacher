@@ -11,7 +11,7 @@ import CoreData
 
 
 class AudioPreviewEntity: NSManagedObject {
-
-// Insert code here to add functionality to your managed object subclass
-
+    static var defaultSortDescriptor: NSSortDescriptor {
+        return NSSortDescriptor(key: "hasData", ascending: false)
+    }
 }

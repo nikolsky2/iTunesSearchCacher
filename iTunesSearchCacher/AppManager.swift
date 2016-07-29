@@ -32,10 +32,6 @@ class AppManager: NSObject {
         let window = UIWindow(frame: UIScreen.mainScreen().bounds)
         return window
     }()
-    
-    func fetchDataAgain() {
-        downloadManager.performFetch()
-    }
 }
 
 extension AppManager: AppLifeCycle {

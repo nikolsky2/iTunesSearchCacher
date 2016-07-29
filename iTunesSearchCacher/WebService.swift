@@ -14,16 +14,6 @@ protocol BackgroundDownloadable: class {
     func downloadDidFinish(taskIdentifier: Int, data: NSData)
 }
 
-protocol ContentFileDownloadTaskType: class {
-    var fileID: NSManagedObjectID { get }
-    var fileURL: NSURL { get }
-}
-
-extension CollectionEntity: ContentFileDownloadTaskType {
-    var fileID: NSManagedObjectID { return objectID }
-    var fileURL: NSURL { return NSURL(string: artworkUrl)! }
-}
-
 private let maximumConnectionPerHost = 5
 
 class WebService: NSObject {
@@ -42,11 +32,11 @@ class WebService: NSObject {
     
     var defaultSession: NSURLSession!
     
-    func startDownloadTask(request: NSURLRequest, delegate: BackgroundDownloadable) -> Int {
+    func startDownloadTask(request: NSURLRequest, priority: Float) -> Int {
         let task = defaultSession.downloadTaskWithRequest(request)
-        let taskIdentifier = task.taskIdentifier
+        task.priority = priority
         task.resume()
-        return taskIdentifier
+        return task.taskIdentifier
     }
     
     func start(operationQueue: NSOperationQueue) {

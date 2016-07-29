@@ -107,7 +107,6 @@ class CoreDataSearchResultsSerialiser: NSObject {
                             stats.insertedTracks += 1
                         }
                         
-                        trackEntity.previewUrl = item.previewUrl
                         trackEntity.trackId = item.trackId.longLongValue
                         trackEntity.trackName = item.trackName
                         trackEntity.trackNumber = item.trackNumber.longLongValue
@@ -115,6 +114,7 @@ class CoreDataSearchResultsSerialiser: NSObject {
                         //AudioPreview
                         let preview: AudioPreviewEntity = privateContext.createEntity()
                         preview.track = trackEntity
+                        preview.previewUrl = item.previewUrl
                         
                         searchEntity.appendTrack(trackEntity)
                         

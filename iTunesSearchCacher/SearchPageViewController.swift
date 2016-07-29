@@ -33,7 +33,7 @@ class SearchPageViewController: UIViewController {
     }
     
     @IBAction func settingsButtonDidTouch(sender: AnyObject) {
-        AppManager.shared().fetchDataAgain()
+        
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
