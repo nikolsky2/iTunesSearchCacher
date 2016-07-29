@@ -14,7 +14,7 @@ import CoreData
 
 extension AudioPreviewEntity {
 
-    @NSManaged var hasData: Bool
+    @NSManaged var hasPreviewData: Bool
     @NSManaged var previewData: NSData?
     @NSManaged var previewUrl: String
     @NSManaged var track: TrackEntity

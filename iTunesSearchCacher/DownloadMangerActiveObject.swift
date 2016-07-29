@@ -191,9 +191,9 @@ extension ContentDownloadManager: BackgroundDownloadable {
     func downloadDidFinish(taskIdentifier: Int, data: NSData) {
         
         try! saveChangesWithAction {
-            let collection = privateContext.objectWithID(activeTasks[taskIdentifier]!.fileID) as! CollectionEntity
-            collection.artworkData = data
-            collection.hasArtworkData = true
+            let collection = privateContext.objectWithID(activeTasks[taskIdentifier]!.fileID) as! ContentFileDownloadTask
+            collection.data = data
+            collection.hasData = true
         }
         
         activeTasks.removeValueForKey(taskIdentifier)

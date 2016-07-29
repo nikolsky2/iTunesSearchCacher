@@ -7,7 +7,7 @@
         <relationship name="collections" toMany="YES" deletionRule="Cascade" destinationEntity="CollectionEntity" inverseName="artist" inverseEntity="CollectionEntity" syncable="YES"/>
     </entity>
     <entity name="AudioPreviewEntity" representedClassName=".AudioPreviewEntity" syncable="YES">
-        <attribute name="hasData" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="hasPreviewData" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="previewData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <attribute name="previewUrl" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="track" maxCount="1" deletionRule="Nullify" destinationEntity="TrackEntity" inverseName="preview" inverseEntity="TrackEntity" syncable="YES"/>
