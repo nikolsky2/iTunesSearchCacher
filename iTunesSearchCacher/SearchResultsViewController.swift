@@ -87,9 +87,24 @@ extension SearchResultsViewController: UITableViewDataSource {
 
 extension SearchResultsViewController: UITableViewDelegate {
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let track = dataSource[indexPath.row] as! TrackEntity
-        print(track.collection)
+        //TODO: start downloading the song
+        
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
+//    
+//    func tableView(tableView: UITableView, didHighlightRowAtIndexPath indexPath: NSIndexPath) {
+//        let cell = tableView.cellForRowAtIndexPath(indexPath)
+//        UIView.animateWithDuration(0.3) { () -> Void in
+//            cell!.alpha = 0.25
+//        }
+//    }
+//    
+//    func tableView(tableView: UITableView, didUnhighlightRowAtIndexPath indexPath: NSIndexPath) {
+//        let cell = tableView.cellForRowAtIndexPath(indexPath)
+//        UIView.animateWithDuration(0.3) { () -> Void in
+//            cell!.alpha = 1
+//        }
+//    }
 }
 
 extension SearchResultsViewController: SearchResultsDataSourceDelegate {
