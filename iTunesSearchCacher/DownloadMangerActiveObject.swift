@@ -125,7 +125,7 @@ class ContentDownloadManager: NSObject {
     
     func performAudioFetch() {
         let fetchRequest = NSFetchRequest(entityName: AudioPreviewEntity.className)
-        let collectionFetchPredicate = NSPredicate(format: "hasData == NO")
+        let collectionFetchPredicate = NSPredicate(format: "hasPreviewData == NO")
         fetchRequest.predicate = collectionFetchPredicate
         fetchRequest.sortDescriptors = [AudioPreviewEntity.defaultSortDescriptor]
         audioFetchResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: privateContext, sectionNameKeyPath: nil, cacheName: nil)

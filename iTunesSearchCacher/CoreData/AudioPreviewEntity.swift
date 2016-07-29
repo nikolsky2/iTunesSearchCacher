@@ -12,6 +12,6 @@ import CoreData
 
 class AudioPreviewEntity: NSManagedObject {
     static var defaultSortDescriptor: NSSortDescriptor {
-        return NSSortDescriptor(key: "hasData", ascending: false)
+        return NSSortDescriptor(key: "hasPreviewData", ascending: false)
     }
 }

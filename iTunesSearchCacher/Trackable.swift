@@ -10,10 +10,28 @@ import Foundation
 import CoreData
 import UIKit
 
+enum DownloadState: UInt {
+    case NotDownloaded
+    case Downloading
+    case Downloaded
+    
+    var imageName: String {
+        switch self {
+        case .NotDownloaded:
+            return "downloadFile"
+        case .Downloading:
+            return "downloadingFile"
+        case .Downloaded:
+            return "downloadedFile"
+        }
+    }
+}
+
 protocol TrackViewModel: class {
     var trackImage: UIImage? { get }
     var topString: String { get }
     var bottomString: String { get }
+    var previewState: DownloadState { get }
 }
 
 extension TrackEntity: TrackViewModel {
@@ -32,6 +50,10 @@ extension TrackEntity: TrackViewModel {
     var bottomString: String {
         return "Song by " + collection.artist.artistName
     }
+    
+    var previewState: DownloadState {
+        return preview.hasData ? .Downloaded : .NotDownloaded
+    }
 }
 
 protocol Trackable: class {
@@ -48,6 +70,7 @@ extension NSManagedObjectContext {
     func fetchWithIds<T: NSManagedObject where T: Trackable>(ids: [NSNumber]) -> [T] {
         
         let fetchRequest = NSFetchRequest(entityName: T.className)
+        fetchRequest.relationshipKeyPathsForPrefetching = ["preview"]
         fetchRequest.predicate = NSPredicate(format: T.trackableId() + " IN %@", ids)
         let objects = try! self.executeFetchRequest(fetchRequest) as! [T]
         

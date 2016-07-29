@@ -21,6 +21,7 @@ class TrackTableViewCell: UITableViewCell {
     @IBOutlet private weak var thumbnailView: UIImageView!
     @IBOutlet private weak var topLabel: UILabel!
     @IBOutlet private weak var bottomLabel: UILabel!
+    @IBOutlet private weak var downloadedStateView: UIImageView!
 }
 
 class SearchResultsViewController: UIViewController {
@@ -80,6 +81,7 @@ extension SearchResultsViewController: UITableViewDataSource {
         cell.topLabel.text = dataSource[indexPath.row].topString
         cell.bottomLabel.text = dataSource[indexPath.row].bottomString
         cell.thumbnailView.image = dataSource[indexPath.row].trackImage
+        cell.downloadedStateView.image = UIImage(named: dataSource[indexPath.row].previewState.imageName)!
         
         return cell
     }
@@ -91,20 +93,6 @@ extension SearchResultsViewController: UITableViewDelegate {
         
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
-//    
-//    func tableView(tableView: UITableView, didHighlightRowAtIndexPath indexPath: NSIndexPath) {
-//        let cell = tableView.cellForRowAtIndexPath(indexPath)
-//        UIView.animateWithDuration(0.3) { () -> Void in
-//            cell!.alpha = 0.25
-//        }
-//    }
-//    
-//    func tableView(tableView: UITableView, didUnhighlightRowAtIndexPath indexPath: NSIndexPath) {
-//        let cell = tableView.cellForRowAtIndexPath(indexPath)
-//        UIView.animateWithDuration(0.3) { () -> Void in
-//            cell!.alpha = 1
-//        }
-//    }
 }
 
 extension SearchResultsViewController: SearchResultsDataSourceDelegate {

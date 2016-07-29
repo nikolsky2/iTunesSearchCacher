@@ -205,6 +205,7 @@
                                                 </tableViewCellContentView>
                                                 <connections>
                                                     <outlet property="bottomLabel" destination="upt-Tu-fQZ" id="zCk-Lp-s3t"/>
+                                                    <outlet property="downloadedStateView" destination="BT3-Mj-KpR" id="AzD-R0-sTa"/>
                                                     <outlet property="thumbnailView" destination="DXD-Df-aPj" id="xs6-ek-8ci"/>
                                                     <outlet property="topLabel" destination="V7I-Wr-h2T" id="RA9-uD-5Au"/>
                                                 </connections>

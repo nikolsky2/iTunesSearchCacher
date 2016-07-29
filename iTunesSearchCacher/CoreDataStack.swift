@@ -9,13 +9,6 @@
 import Foundation
 import CoreData
 
-//TODO: Use as a state
-enum DownloadState: UInt {
-    case NotDownloaded
-    case Downloading
-    case Downloaded
-}
-
 extension NSManagedObject {
     class var entityName: String {
         return "\(self)"
