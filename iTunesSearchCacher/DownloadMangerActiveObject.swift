@@ -98,13 +98,16 @@ class ContentDownloadManager: NSObject {
                 self.privateContext.performBlockAndWait({ () -> Void in
                     guard let userInfo = notification.userInfo as? [String: NSObject] else { return }
                     
+                    // http://floriankugler.com/2013/04/29/concurrent-core-data-stack-performance-shootout/
+                    // Update from the mainContext doesn't trigger the update of NSFetchedResultsController
+                    
                     func objectsWithChangeType(changeType: String) -> Set<NSManagedObject>? {
                         return (userInfo[changeType] as? Set<NSManagedObject>) ?? nil
                     }
                     
                     if let updated = objectsWithChangeType(NSUpdatedObjectsKey) {
                         updated.forEach {
-                            if let preview = $0 as? AudioPreviewEntity where self.previewNeedsDownloadPredicate.evaluateWithObject(preview) {
+                            if let preview = $0 as? AudioPreviewEntity where AudioPreviewEntity.previewNeedsDownloadPredicate.evaluateWithObject(preview) {
                                 self.dispatchNewDownload($0 as! ContentFileDownloadTask)
                             }
                         }
@@ -144,7 +147,7 @@ class ContentDownloadManager: NSObject {
     private func performAudioFetch() {
         privateContext.performBlockAndWait {
             let fetchRequest = NSFetchRequest(entityName: AudioPreviewEntity.className)
-            let collectionFetchPredicate = self.previewNeedsDownloadPredicate
+            let collectionFetchPredicate = AudioPreviewEntity.previewNeedsDownloadPredicate
             fetchRequest.predicate = collectionFetchPredicate
             fetchRequest.sortDescriptors = [AudioPreviewEntity.defaultSortDescriptor]
             self.audioFetchResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.privateContext, sectionNameKeyPath: nil, cacheName: nil)
@@ -154,10 +157,6 @@ class ContentDownloadManager: NSObject {
             let previews = self.audioFetchResultsController.fetchedObjects as! [AudioPreviewEntity]
             previews.forEach { self.pendingQueue.push($0) }
         }
-    }
-    
-    private var previewNeedsDownloadPredicate: NSPredicate {
-        return NSPredicate(format: "hasPreviewData == NO AND needsDownload == YES")
     }
     
     private var isProducingNewDownloads: Bool {

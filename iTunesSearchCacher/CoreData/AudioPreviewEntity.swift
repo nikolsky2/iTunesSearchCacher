@@ -15,3 +15,9 @@ class AudioPreviewEntity: NSManagedObject {
         return NSSortDescriptor(key: "hasPreviewData", ascending: false)
     }
 }
+
+extension AudioPreviewEntity {
+    static var previewNeedsDownloadPredicate: NSPredicate {
+        return NSPredicate(format: "hasPreviewData == NO AND needsDownload == YES")
+    }
+}

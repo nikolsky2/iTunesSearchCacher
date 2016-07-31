@@ -74,8 +74,9 @@ class SearchResultsDataSource: NSObject {
     private let mainContext: NSManagedObjectContext
     private let resultsSerialiser: CoreDataSearchResultsSerialiser
     
-    private var tracksFetchResultsController: NSFetchedResultsController?
-    private var collectionsFetchResultsController: NSFetchedResultsController?
+    private var previewsFetchResultsController: NSFetchedResultsController!
+    private var tracksFetchResultsController: NSFetchedResultsController!
+    private var collectionsFetchResultsController: NSFetchedResultsController!
     
     private let contextObserver: AnyObject
     
@@ -143,8 +144,8 @@ class SearchResultsDataSource: NSObject {
         trackFetchRequest.relationshipKeyPathsForPrefetching = ["collection"]
         
         tracksFetchResultsController = NSFetchedResultsController(fetchRequest: trackFetchRequest, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
-        tracksFetchResultsController!.delegate = self
-        try! tracksFetchResultsController!.performFetch()
+        tracksFetchResultsController.delegate = self
+        try! tracksFetchResultsController.performFetch()
         
         let tracks = tracksFetchResultsController!.fetchedObjects as! [TrackEntity]
         let collectionFetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
@@ -153,8 +154,17 @@ class SearchResultsDataSource: NSObject {
         collectionFetchRequest.sortDescriptors = [CollectionEntity.defaultSortDescriptor]
         
         collectionsFetchResultsController = NSFetchedResultsController(fetchRequest: collectionFetchRequest, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
-        collectionsFetchResultsController!.delegate = self
-        try! collectionsFetchResultsController!.performFetch()
+        collectionsFetchResultsController.delegate = self
+        try! collectionsFetchResultsController.performFetch()
+        
+        let previewsFetchRequest = NSFetchRequest(entityName: AudioPreviewEntity.className)
+        let previewsFetchPredicate = NSPredicate(format: "hasPreviewData == YES AND track IN %@", Set(tracks))
+        previewsFetchRequest.predicate = previewsFetchPredicate
+        previewsFetchRequest.sortDescriptors = [AudioPreviewEntity.defaultSortDescriptor]
+        
+        previewsFetchResultsController = NSFetchedResultsController(fetchRequest: previewsFetchRequest, managedObjectContext: mainContext, sectionNameKeyPath: nil, cacheName: nil)
+        previewsFetchResultsController.delegate = self
+        try! previewsFetchResultsController.performFetch()
     }
     
     private func fetchRequestWithTerm(term: String, completionBlock:([String: AnyObject])? -> ()) {
@@ -199,16 +209,25 @@ extension SearchResultsDataSource: NSFetchedResultsControllerDelegate {
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         
         switch controller {
-        case tracksFetchResultsController!:
+        case previewsFetchResultsController:
+            let tracks = tracksFetchResultsController.fetchedObjects as! [TrackEntity]
+            let preview = anObject as! AudioPreviewEntity
+            let track = tracks.filter{ $0.trackId == preview.track.trackId }.first
+            if let foundTrack = track, indice = tracks.indexOf(foundTrack) {
+                let indexPath = NSIndexPath(forItem: indice, inSection: 0)
+                self.delegate?.didUpdateItemsAt([indexPath])
+            }
+            
+        case tracksFetchResultsController:
             switch(type) {
             case .Update:
                 self.delegate?.didUpdateItemsAt([indexPath!])
             default:
                 break
             }
-        case collectionsFetchResultsController!:
+        case collectionsFetchResultsController:
             
-            let tracks = tracksFetchResultsController!.fetchedObjects as! [TrackEntity]
+            let tracks = tracksFetchResultsController.fetchedObjects as! [TrackEntity]
             let collection = anObject as! CollectionEntity
             let updatedTracks = tracks.filter { $0.collection.collectionId == collection.collectionId }
             let indices = updatedTracks.flatMap{ tracks.indexOf($0) }
