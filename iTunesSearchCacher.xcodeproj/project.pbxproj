@@ -52,7 +52,7 @@
 		F54BB56E1D30E2F0004411A1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F54BB5711D30E2F0004411A1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F54BB5731D30E2F0004411A1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F54BB5791D30E3C9004411A1 /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
+		F54BB5791D30E3C9004411A1 /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CoreDataStack.swift; path = iTunesSearchCacher/CoreDataStack.swift; sourceTree = SOURCE_ROOT; };
 		F54BB57B1D30E40F004411A1 /* AppManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
 		F54BB57F1D31249C004411A1 /* iTunesJSONResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iTunesJSONResult.swift; sourceTree = "<group>"; };
 		F56D45631D4AE2C2000186D5 /* ContentFileDownloadTask.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentFileDownloadTask.swift; sourceTree = "<group>"; };
@@ -74,7 +74,7 @@
 		F5FD032F1D38A7890095C92D /* SearchEntity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchEntity.swift; sourceTree = "<group>"; };
 		F5FD03341D38B3BB0095C92D /* SearchTermsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchTermsViewController.swift; sourceTree = "<group>"; };
 		F5FD03591D3DFAFC0095C92D /* SyncCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SyncCoordinator.swift; sourceTree = "<group>"; };
-		F5FD035B1D3EEBD40095C92D /* NSManagedObjectContext+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSManagedObjectContext+Extensions.swift"; sourceTree = "<group>"; };
+		F5FD035B1D3EEBD40095C92D /* NSManagedObjectContext+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "NSManagedObjectContext+Extensions.swift"; path = "../NSManagedObjectContext+Extensions.swift"; sourceTree = "<group>"; };
 		F5FD035E1D3EF0DB0095C92D /* WebService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -121,14 +121,11 @@
 		F54BB5661D30E2F0004411A1 /* iTunesSearchCacher */ = {
 			isa = PBXGroup;
 			children = (
+				F5C2CA431D4E26D20067FB0A /* UI */,
 				F5FD035D1D3EF0C90095C92D /* WebService */,
 				F5FD033A1D3BC90D0095C92D /* SyncEngine */,
+				F52410501D313D9F00174B89 /* Model */,
 				F5F51A541D33A05600EB8135 /* CoreData */,
-				F52410511D313DDF00174B89 /* SearchPageViewController.swift */,
-				F5FD03341D38B3BB0095C92D /* SearchTermsViewController.swift */,
-				F5F51A451D31F20600EB8135 /* Results */,
-				F58517BB1D31480C0004DB43 /* Main.storyboard */,
-				F54BB5701D30E2F0004411A1 /* LaunchScreen.storyboard */,
 				F5F51A461D31F3A300EB8135 /* AppManagment */,
 				F54BB56E1D30E2F0004411A1 /* Assets.xcassets */,
 				F54BB5731D30E2F0004411A1 /* Info.plist */,
@@ -136,13 +133,16 @@
 			path = iTunesSearchCacher;
 			sourceTree = "<group>";
 		};
-		F5F51A451D31F20600EB8135 /* Results */ = {
+		F5C2CA431D4E26D20067FB0A /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				F52410511D313DDF00174B89 /* SearchPageViewController.swift */,
 				F52410601D313EE300174B89 /* SearchResultsViewController.swift */,
-				F52410501D313D9F00174B89 /* Model */,
+				F5FD03341D38B3BB0095C92D /* SearchTermsViewController.swift */,
+				F58517BB1D31480C0004DB43 /* Main.storyboard */,
+				F54BB5701D30E2F0004411A1 /* LaunchScreen.storyboard */,
 			);
-			name = Results;
+			name = UI;
 			sourceTree = "<group>";
 		};
 		F5F51A461D31F3A300EB8135 /* AppManagment */ = {
@@ -150,7 +150,6 @@
 			children = (
 				F54BB5671D30E2F0004411A1 /* AppDelegate.swift */,
 				F54BB57B1D30E40F004411A1 /* AppManager.swift */,
-				F54BB5791D30E3C9004411A1 /* CoreDataStack.swift */,
 			);
 			name = AppManagment;
 			sourceTree = "<group>";
@@ -169,6 +168,8 @@
 				F5F51A5C1D33B50500EB8135 /* CollectionEntity+CoreDataProperties.swift */,
 				F5F51A641D33B58D00EB8135 /* TrackEntity+CoreDataProperties.swift */,
 				F5F51A551D33A07D00EB8135 /* searchCacheDataModel.xcdatamodeld */,
+				F5FD035B1D3EEBD40095C92D /* NSManagedObjectContext+Extensions.swift */,
+				F54BB5791D30E3C9004411A1 /* CoreDataStack.swift */,
 			);
 			path = CoreData;
 			sourceTree = "<group>";
@@ -177,7 +178,6 @@
 			isa = PBXGroup;
 			children = (
 				F5FD03591D3DFAFC0095C92D /* SyncCoordinator.swift */,
-				F5FD035B1D3EEBD40095C92D /* NSManagedObjectContext+Extensions.swift */,
 			);
 			name = SyncEngine;
 			sourceTree = "<group>";
