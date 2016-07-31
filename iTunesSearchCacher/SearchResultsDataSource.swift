@@ -223,6 +223,24 @@ extension SearchResultsDataSource: NSFetchedResultsControllerDelegate {
     }
 }
 
+extension SearchResultsDataSource: SearchResultsViewControllerDelegate {
+    func didSelectTrackForDownloadingAt(indexPath: NSIndexPath) {
+        mainContext.performBlock { 
+            let track = self.tracksFetchResultsController!.objectAtIndexPath(indexPath) as! TrackEntity
+            let preview = track.preview
+            
+            guard preview.needsDownload == false else { return }
+            preview.needsDownload = true
+            
+            do {
+                try self.mainContext.save()
+            }
+            catch {
+                fatalError("failure to save context: \(error)")
+            }
+        }
+    }
+}
 
 
 

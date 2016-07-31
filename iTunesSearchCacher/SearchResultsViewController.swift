@@ -24,10 +24,15 @@ class TrackTableViewCell: UITableViewCell {
     @IBOutlet private weak var downloadedStateView: UIImageView!
 }
 
+protocol SearchResultsViewControllerDelegate: class {
+    func didSelectTrackForDownloadingAt(indexPath: NSIndexPath)
+}
+
 class SearchResultsViewController: UIViewController {
 
     var searchTerm: String!
     private var dataSource = SearchResultsDataSource(mainContext: AppManager.shared().mainContext)
+    private weak var delegate: SearchResultsViewControllerDelegate?
     var fetchOnce = false
     
     @IBOutlet private weak var contentView: UIView!
@@ -51,6 +56,7 @@ class SearchResultsViewController: UIViewController {
         if !fetchOnce {
             dataSource.delegate = self
             dataSource.searchWithMode(SearchMode.Term(searchTerm))
+            delegate = dataSource
         }
     }
     
@@ -89,8 +95,7 @@ extension SearchResultsViewController: UITableViewDataSource {
 
 extension SearchResultsViewController: UITableViewDelegate {
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //TODO: start downloading the song
-        
+        delegate?.didSelectTrackForDownloadingAt(indexPath)
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
 }

@@ -8,8 +8,9 @@
     </entity>
     <entity name="AudioPreviewEntity" representedClassName=".AudioPreviewEntity" syncable="YES">
         <attribute name="hasPreviewData" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="needsDownload" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="previewData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
-        <attribute name="previewUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="previewUrl" attributeType="String" syncable="YES"/>
         <relationship name="track" maxCount="1" deletionRule="Nullify" destinationEntity="TrackEntity" inverseName="preview" inverseEntity="TrackEntity" syncable="YES"/>
     </entity>
     <entity name="CollectionEntity" representedClassName=".CollectionEntity" syncable="YES">
@@ -33,12 +34,12 @@
         <attribute name="trackName" attributeType="String" syncable="YES"/>
         <attribute name="trackNumber" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <relationship name="collection" maxCount="1" deletionRule="Nullify" destinationEntity="CollectionEntity" inverseName="tracks" inverseEntity="CollectionEntity" syncable="YES"/>
-        <relationship name="preview" maxCount="1" deletionRule="Nullify" destinationEntity="AudioPreviewEntity" inverseName="track" inverseEntity="AudioPreviewEntity" syncable="YES"/>
+        <relationship name="preview" maxCount="1" deletionRule="Cascade" destinationEntity="AudioPreviewEntity" inverseName="track" inverseEntity="AudioPreviewEntity" syncable="YES"/>
         <relationship name="searches" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SearchEntity" inverseName="tracks" inverseEntity="SearchEntity" syncable="YES"/>
     </entity>
     <elements>
         <element name="ArtistEntity" positionX="-281" positionY="102" width="128" height="105"/>
-        <element name="AudioPreviewEntity" positionX="-342" positionY="495" width="128" height="105"/>
+        <element name="AudioPreviewEntity" positionX="-342" positionY="495" width="128" height="120"/>
         <element name="CollectionEntity" positionX="-488" positionY="164" width="128" height="180"/>
         <element name="SearchEntity" positionX="52" positionY="407" width="128" height="88"/>
         <element name="TrackEntity" positionX="-126" positionY="234" width="128" height="135"/>

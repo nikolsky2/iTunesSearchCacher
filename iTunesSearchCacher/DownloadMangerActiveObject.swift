@@ -95,7 +95,20 @@ class ContentDownloadManager: NSObject {
             notification in
             
             if let context = notification.object as? NSManagedObjectContext where context !== self.privateContext {
-                self.privateContext.performBlock({ () -> Void in
+                self.privateContext.performBlockAndWait({ () -> Void in
+                    guard let userInfo = notification.userInfo as? [String: NSObject] else { return }
+                    
+                    func objectsWithChangeType(changeType: String) -> Set<NSManagedObject>? {
+                        return (userInfo[changeType] as? Set<NSManagedObject>) ?? nil
+                    }
+                    
+                    if let updated = objectsWithChangeType(NSUpdatedObjectsKey) {
+                        updated.forEach {
+                            if let preview = $0 as? AudioPreviewEntity where self.previewNeedsDownloadPredicate.evaluateWithObject(preview) {
+                                self.dispatchNewDownload($0 as! ContentFileDownloadTask)
+                            }
+                        }
+                    }
                     self.privateContext.mergeChangesFromContextDidSaveNotification(notification)
                 })
             }
@@ -104,46 +117,56 @@ class ContentDownloadManager: NSObject {
         webService.delegate = self
         webService.start(operationQueue)
         
+        performFetchAndSheduleDownloads()
+    }
+    
+    private func performFetchAndSheduleDownloads() {
         performCollectionsFetch()
         performAudioFetch()
-        
         produceNewDownloads()
     }
     
     private func performCollectionsFetch() {
-        let fetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
-        let collectionFetchPredicate = NSPredicate(format: "hasArtworkData == NO")
-        fetchRequest.predicate = collectionFetchPredicate
-        fetchRequest.sortDescriptors = [CollectionEntity.defaultSortDescriptor]
-        collectionsFetchResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: privateContext, sectionNameKeyPath: nil, cacheName: nil)
-        collectionsFetchResultsController.delegate = self
-        try! collectionsFetchResultsController.performFetch()
-        
-        let collections = collectionsFetchResultsController.fetchedObjects as! [CollectionEntity]
-        collections.forEach { pendingQueue.push($0) }
+        privateContext.performBlockAndWait {
+            let fetchRequest = NSFetchRequest(entityName: CollectionEntity.className)
+            let collectionFetchPredicate = NSPredicate(format: "hasArtworkData == NO")
+            fetchRequest.predicate = collectionFetchPredicate
+            fetchRequest.sortDescriptors = [CollectionEntity.defaultSortDescriptor]
+            self.collectionsFetchResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.privateContext, sectionNameKeyPath: nil, cacheName: nil)
+            self.collectionsFetchResultsController.delegate = self
+            try! self.collectionsFetchResultsController.performFetch()
+            
+            let collections = self.collectionsFetchResultsController.fetchedObjects as! [CollectionEntity]
+            collections.forEach { self.pendingQueue.push($0) }
+        }
     }
     
-    func performAudioFetch() {
-        let fetchRequest = NSFetchRequest(entityName: AudioPreviewEntity.className)
-        let collectionFetchPredicate = NSPredicate(format: "hasPreviewData == NO")
-        fetchRequest.predicate = collectionFetchPredicate
-        fetchRequest.sortDescriptors = [AudioPreviewEntity.defaultSortDescriptor]
-        audioFetchResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: privateContext, sectionNameKeyPath: nil, cacheName: nil)
-        audioFetchResultsController.delegate = self
-        try! audioFetchResultsController.performFetch()
-        
-        let previews = audioFetchResultsController.fetchedObjects as! [AudioPreviewEntity]
-        previews.forEach { pendingQueue.push($0) }
+    private func performAudioFetch() {
+        privateContext.performBlockAndWait {
+            let fetchRequest = NSFetchRequest(entityName: AudioPreviewEntity.className)
+            let collectionFetchPredicate = self.previewNeedsDownloadPredicate
+            fetchRequest.predicate = collectionFetchPredicate
+            fetchRequest.sortDescriptors = [AudioPreviewEntity.defaultSortDescriptor]
+            self.audioFetchResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.privateContext, sectionNameKeyPath: nil, cacheName: nil)
+            self.audioFetchResultsController.delegate = self
+            try! self.audioFetchResultsController.performFetch()
+            
+            let previews = self.audioFetchResultsController.fetchedObjects as! [AudioPreviewEntity]
+            previews.forEach { self.pendingQueue.push($0) }
+        }
     }
     
-    private var hasAvailableDownloadSlot: Bool {
-        return activeTasks.count < webService.maximumConections
+    private var previewNeedsDownloadPredicate: NSPredicate {
+        return NSPredicate(format: "hasPreviewData == NO AND needsDownload == YES")
     }
     
+    private var isProducingNewDownloads: Bool {
+        return activeTasks.count < webService.maximumConections && !pendingQueue.isEmpty
+    }
+
     private func produceNewDownloads() {
-        guard hasAvailableDownloadSlot && !pendingQueue.isEmpty else { return }
-        
-        while hasAvailableDownloadSlot && !pendingQueue.isEmpty {
+        guard isProducingNewDownloads else { return }
+        while isProducingNewDownloads {
             let task = pendingQueue.pop()!
             startDownloadTask(task)
         }
@@ -158,17 +181,23 @@ class ContentDownloadManager: NSObject {
         print("startDownloadTask taskIdentifier = \(taskIdentifier)")
     }
     
-    private func saveChangesWithAction(@noescape action: () -> Void ) throws {
-        action()
-        if privateContext.hasChanges {
-            privateContext.performBlockAndWait {
-                do {
-                    try self.privateContext.save()
-                }
-                catch {
-                    fatalError("failure to save context: \(error)")
-                }
+    private func saveChangesWithAction(action: () -> (), completion: () -> ()) throws {
+        privateContext.performBlockAndWait {
+            action()
+            do {
+                try self.privateContext.save()
+                completion()
             }
+            catch {
+                fatalError("failure to save context: \(error)")
+            }
+        }
+    }
+    
+    private func dispatchNewDownload(task: ContentFileDownloadTask) {
+        dispatch_sync(operationQueue.underlyingQueue!) {
+            self.pendingQueue.push(task)
+            self.produceNewDownloads()
         }
     }
 }
@@ -189,35 +218,31 @@ extension ContentDownloadManager: BackgroundDownloadable {
     }
     
     func downloadDidFinish(taskIdentifier: Int, data: NSData) {
-        
-        try! saveChangesWithAction {
-            let collection = privateContext.objectWithID(activeTasks[taskIdentifier]!.fileID) as! ContentFileDownloadTask
+        try! saveChangesWithAction({
+            let collection = self.privateContext.objectWithID(self.activeTasks[taskIdentifier]!.fileID) as! ContentFileDownloadTask
             collection.data = data
             collection.hasData = true
-        }
-        
-        activeTasks.removeValueForKey(taskIdentifier)
-        activeProgress.removeValueForKey(taskIdentifier)
-        
-        produceNewDownloads()
-        
-        print("Finished task. Active: \(activeTasks.count), pending: \(pendingQueue.count)")
+            }, completion: { [weak self] in
+                if let strongSelf = self {
+                    dispatch_async(strongSelf.operationQueue.underlyingQueue!) {
+                        strongSelf.activeTasks.removeValueForKey(taskIdentifier)
+                        strongSelf.activeProgress.removeValueForKey(taskIdentifier)
+                        strongSelf.produceNewDownloads()
+                        
+                        print("Finished task. Active: \(strongSelf.activeTasks.count), pending: \(strongSelf.pendingQueue.count)")
+                    }
+                }
+            })
     }
 }
 
 extension ContentDownloadManager: NSFetchedResultsControllerDelegate {
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         
-        switch type {
-        case .Insert:
-            dispatch_sync(operationQueue.underlyingQueue!) {
-                let collection = anObject as! ContentFileDownloadTask
-                self.pendingQueue.push(collection)
-                self.produceNewDownloads()
-            }
-        default:
-            break
-        }
+        guard type == .Insert else { return }
+        
+        let task = anObject as! ContentFileDownloadTask
+        dispatchNewDownload(task)
     }
 }
 
