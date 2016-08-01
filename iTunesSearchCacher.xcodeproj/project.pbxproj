@@ -23,6 +23,7 @@
 		F58517BC1D31480C0004DB43 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F58517BB1D31480C0004DB43 /* Main.storyboard */; };
 		F5B84FC71D41AC7D002FC782 /* DownloadMangerActiveObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B84FC61D41AC7D002FC782 /* DownloadMangerActiveObject.swift */; };
 		F5B84FC91D431E9E002FC782 /* NSFileManager+Directories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B84FC81D431E9E002FC782 /* NSFileManager+Directories.swift */; };
+		F5C2CA451D4ED5100067FB0A /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C2CA441D4ED5100067FB0A /* AudioPlayer.swift */; };
 		F5F51A431D31F1E700EB8135 /* SearchResultsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F51A421D31F1E700EB8135 /* SearchResultsDataSource.swift */; };
 		F5F51A571D33A07D00EB8135 /* searchCacheDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F5F51A551D33A07D00EB8135 /* searchCacheDataModel.xcdatamodeld */; };
 		F5F51A5E1D33B50500EB8135 /* ArtistEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F51A581D33B50500EB8135 /* ArtistEntity+CoreDataProperties.swift */; };
@@ -60,6 +61,7 @@
 		F58517BB1D31480C0004DB43 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		F5B84FC61D41AC7D002FC782 /* DownloadMangerActiveObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadMangerActiveObject.swift; sourceTree = "<group>"; };
 		F5B84FC81D431E9E002FC782 /* NSFileManager+Directories.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSFileManager+Directories.swift"; sourceTree = "<group>"; };
+		F5C2CA441D4ED5100067FB0A /* AudioPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		F5F51A421D31F1E700EB8135 /* SearchResultsDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsDataSource.swift; sourceTree = "<group>"; };
 		F5F51A561D33A07D00EB8135 /* searchCacheDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = searchCacheDataModel.xcdatamodel; sourceTree = "<group>"; };
 		F5F51A581D33B50500EB8135 /* ArtistEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ArtistEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 				F54BB57F1D31249C004411A1 /* iTunesJSONResult.swift */,
 				F5F51A661D34824500EB8135 /* NSObject+ClassName.swift */,
 				F56D45AC1D4B9642000186D5 /* PriorityQueue.swift */,
+				F5C2CA441D4ED5100067FB0A /* AudioPlayer.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -282,6 +285,7 @@
 				F5F51A5E1D33B50500EB8135 /* ArtistEntity+CoreDataProperties.swift in Sources */,
 				F54BB57C1D30E40F004411A1 /* AppManager.swift in Sources */,
 				F56D45AD1D4B9642000186D5 /* PriorityQueue.swift in Sources */,
+				F5C2CA451D4ED5100067FB0A /* AudioPlayer.swift in Sources */,
 				F5B84FC91D431E9E002FC782 /* NSFileManager+Directories.swift in Sources */,
 				F50B804F1D485E2100BAD9A6 /* AudioPreviewEntity.swift in Sources */,
 				F5F51A671D34824500EB8135 /* NSObject+ClassName.swift in Sources */,

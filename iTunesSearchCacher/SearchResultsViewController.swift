@@ -17,6 +17,17 @@ extension ReusableView where Self: UIView {
 }
 extension UITableViewCell: ReusableView { }
 
+enum AudioPreviewState {
+    case Playing
+    case Paused
+    case Finished
+}
+
+struct CurrentAudioPreview {
+    let trackID: Int64
+    var state: AudioPreviewState
+}
+
 class TrackTableViewCell: UITableViewCell {
     @IBOutlet private weak var thumbnailView: UIImageView!
     @IBOutlet private weak var topLabel: UILabel!
@@ -25,7 +36,7 @@ class TrackTableViewCell: UITableViewCell {
 }
 
 protocol SearchResultsViewControllerDelegate: class {
-    func didSelectTrackForDownloadingAt(indexPath: NSIndexPath)
+    func didSelectTrackAt(indexPath: NSIndexPath)
 }
 
 class SearchResultsViewController: UIViewController {
@@ -34,6 +45,9 @@ class SearchResultsViewController: UIViewController {
     private var dataSource = SearchResultsDataSource(mainContext: AppManager.shared().mainContext)
     private weak var delegate: SearchResultsViewControllerDelegate?
     var fetchOnce = false
+    
+    let player = AudioPlayer()
+    var currentAudioPreview = CurrentAudioPreview(trackID: 0, state: .Finished)
     
     @IBOutlet private weak var contentView: UIView!
     @IBOutlet private weak var contentTableView: UITableView!
@@ -48,6 +62,8 @@ class SearchResultsViewController: UIViewController {
         noDataView.alpha = 0
         contentView.alpha = 0
         loadingView.alpha = 1
+        
+        player.delegate = self
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -95,7 +111,7 @@ extension SearchResultsViewController: UITableViewDataSource {
 
 extension SearchResultsViewController: UITableViewDelegate {
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        delegate?.didSelectTrackForDownloadingAt(indexPath)
+        delegate?.didSelectTrackAt(indexPath)
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
 }
@@ -108,4 +124,28 @@ extension SearchResultsViewController: SearchResultsDataSourceDelegate {
     func didUpdateItemsAt(indexPaths: [NSIndexPath]) {
         contentTableView.reloadRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
     }
+    
+    func dataForAudioPreview(trackID: Int64, data: NSData) {
+        if trackID == currentAudioPreview.trackID {
+            switch currentAudioPreview.state {
+            case .Playing:
+                player.pause()
+                currentAudioPreview.state = .Paused
+            case .Paused, .Finished:
+                player.play()
+                currentAudioPreview.state = .Playing
+            }
+        } else {
+            currentAudioPreview = CurrentAudioPreview(trackID: trackID, state: .Playing)
+            player.play(data)
+        }
+    }
 }
+
+extension SearchResultsViewController: AudioPlayerPlayerDelegate {
+    func audioPlayerDidFinishPlaying(player: AudioPlayer) {
+        currentAudioPreview.state = .Finished
+    }
+}
+
+

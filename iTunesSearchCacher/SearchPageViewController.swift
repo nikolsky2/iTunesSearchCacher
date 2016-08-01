@@ -29,7 +29,6 @@ class SearchPageViewController: UIViewController {
         searchTextField.addTarget(self, action: #selector(SearchPageViewController.searchTextFieldDidChange), forControlEvents: .EditingChanged)
         
         searchButton.enabled = false
-        //searchHistoryButton.enabled = false
     }
     
     @IBAction func settingsButtonDidTouch(sender: AnyObject) {

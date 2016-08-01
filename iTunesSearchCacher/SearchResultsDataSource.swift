@@ -41,6 +41,7 @@ struct EntitiesParameterKey {
 protocol SearchResultsDataSourceDelegate: class {
     func didReloadResults()
     func didUpdateItemsAt(indexPaths: [NSIndexPath])
+    func dataForAudioPreview(trackID: Int64, data: NSData)
 }
 
 extension SearchResultsDataSource {
@@ -243,19 +244,26 @@ extension SearchResultsDataSource: NSFetchedResultsControllerDelegate {
 }
 
 extension SearchResultsDataSource: SearchResultsViewControllerDelegate {
-    func didSelectTrackForDownloadingAt(indexPath: NSIndexPath) {
-        mainContext.performBlock { 
+    func didSelectTrackAt(indexPath: NSIndexPath) {
+        
+        mainContext.performBlock {
             let track = self.tracksFetchResultsController!.objectAtIndexPath(indexPath) as! TrackEntity
             let preview = track.preview
             
-            guard preview.needsDownload == false else { return }
-            preview.needsDownload = true
-            
-            do {
-                try self.mainContext.save()
-            }
-            catch {
-                fatalError("failure to save context: \(error)")
+            if preview.hasData == true {
+                dispatch_async(dispatch_get_main_queue()) { [unowned self] in
+                    self.delegate?.dataForAudioPreview(track.trackId, data: preview.data!)
+                }
+            } else {
+                if preview.needsDownload == false {
+                    preview.needsDownload = true
+                    do {
+                        try self.mainContext.save()
+                    }
+                    catch {
+                        fatalError("failure to save context: \(error)")
+                    }
+                }
             }
         }
     }
