@@ -192,14 +192,14 @@
                                                     <constraints>
                                                         <constraint firstItem="DXD-Df-aPj" firstAttribute="centerY" secondItem="V7I-Wr-h2T" secondAttribute="centerY" constant="10" id="2Rr-RE-MDE"/>
                                                         <constraint firstAttribute="bottom" secondItem="DXD-Df-aPj" secondAttribute="bottom" constant="-0.5" id="760-ca-FAN"/>
-                                                        <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="V7I-Wr-h2T" secondAttribute="trailing" constant="10" id="8uz-YX-L1T"/>
                                                         <constraint firstAttribute="trailing" secondItem="BT3-Mj-KpR" secondAttribute="trailing" constant="20" id="9vG-03-o4n"/>
                                                         <constraint firstItem="BT3-Mj-KpR" firstAttribute="centerY" secondItem="a8c-G5-JIK" secondAttribute="centerY" id="F4S-h7-5Nj"/>
                                                         <constraint firstItem="DXD-Df-aPj" firstAttribute="top" secondItem="a8c-G5-JIK" secondAttribute="top" id="I0x-PY-8hN"/>
                                                         <constraint firstItem="DXD-Df-aPj" firstAttribute="leading" secondItem="a8c-G5-JIK" secondAttribute="leading" id="Jrb-oO-Q0l"/>
+                                                        <constraint firstItem="BT3-Mj-KpR" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="V7I-Wr-h2T" secondAttribute="trailing" constant="5" id="Qc7-hx-rU4"/>
+                                                        <constraint firstItem="BT3-Mj-KpR" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="upt-Tu-fQZ" secondAttribute="trailing" constant="5" id="RXw-f2-Gdo"/>
                                                         <constraint firstItem="V7I-Wr-h2T" firstAttribute="leading" secondItem="DXD-Df-aPj" secondAttribute="trailing" constant="20" id="a6d-jw-Nf1"/>
                                                         <constraint firstItem="upt-Tu-fQZ" firstAttribute="leading" secondItem="V7I-Wr-h2T" secondAttribute="leading" id="aHE-uP-NqY"/>
-                                                        <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="upt-Tu-fQZ" secondAttribute="trailing" constant="10" id="byg-Nf-Fb6"/>
                                                         <constraint firstItem="upt-Tu-fQZ" firstAttribute="top" secondItem="V7I-Wr-h2T" secondAttribute="bottom" constant="1" id="dBa-xh-cFw"/>
                                                     </constraints>
                                                 </tableViewCellContentView>
