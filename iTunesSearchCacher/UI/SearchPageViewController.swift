@@ -19,6 +19,11 @@ class SearchPageViewController: UIViewController {
     @IBOutlet private weak var searchTextField: UITextField!
     @IBOutlet private weak var searchButton: UIButton!
     @IBOutlet private weak var searchHistoryButton: UIButton!
+    @IBOutlet private weak var bottomConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var scrollView: UIScrollView!
+    
+    private var keyboardObserver: KeyboardObserver!
+    private var didAutoscroll: Bool = false
     
     private var searchTermsViewController: SearchTermsViewController?
     private var preselectedSearchTerm: String = ""
@@ -29,7 +34,68 @@ class SearchPageViewController: UIViewController {
         searchTextField.addTarget(self, action: #selector(SearchPageViewController.searchTextFieldDidChange), forControlEvents: .EditingChanged)
         
         searchButton.enabled = false
+        
+        keyboardObserver = KeyboardObserver()
+        keyboardObserver.keyboardDidShowCompletionBlock = { [weak self] (keyboardHeight: CGFloat) -> () in
+            if let strongSelf = self {
+                strongSelf.bottomConstraint.constant = keyboardHeight
+                strongSelf.scrollView.scrollIndicatorInsets.bottom = keyboardHeight
+                
+                let isFieldVisible = strongSelf.isViewOnScreen(strongSelf.searchTextField, keyboardHeight: keyboardHeight)
+
+                if !isFieldVisible {
+                    strongSelf.didAutoscroll = true
+                    strongSelf.scrollView.setContentOffset(CGPoint(x: 0, y: 80), animated: true)
+                }
+            }
+        }
+        
+        keyboardObserver.keyboardDidHideCompletionBlock = { [weak self] in
+            if let strongSelf = self {
+                strongSelf.bottomConstraint.constant = 0
+                strongSelf.scrollView.scrollIndicatorInsets = UIEdgeInsets(top: strongSelf.navBarIncludeStatusBarHeight, left: 0, bottom: 0, right: 0)
+            }
+        }
     }
+    
+    private func isViewOnScreen(view: UIView, keyboardHeight: CGFloat) -> Bool {
+        let convertedRect = view.superview!.convertRect(view.frame, toView: self.view)
+        
+        let screenBounds = UIScreen.mainScreen().bounds
+        let availableHeight = screenBounds.size.height - keyboardHeight - self.navBarIncludeStatusBarHeight
+        let availableRect = CGRect(x: 0, y: self.navBarIncludeStatusBarHeight,
+                                   width: screenBounds.size.width,
+                                   height: availableHeight)
+        
+        return CGRectContainsRect(availableRect, convertedRect)
+    }
+    
+    private var navBarIncludeStatusBarHeight: CGFloat {
+        let statusBarHeight = UIApplication.sharedApplication().statusBarFrame.height
+        let navBarHeight = navigationController?.navigationBar.frame.height
+        return statusBarHeight + navBarHeight!
+    }
+    
+    override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+        
+        scrollView.scrollIndicatorInsets.top = navBarIncludeStatusBarHeight
+        view.endEditing(true)
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        keyboardObserver.registerKeyboardNotifications()
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        keyboardObserver.unRegisterKeyboardNotifications()
+    }
+    
+    
     
     @IBAction func settingsButtonDidTouch(sender: AnyObject) {
         
@@ -76,4 +142,18 @@ extension SearchPageViewController: SearchTermsViewControllerDelegate {
         })
     }
 }
+
+extension SearchPageViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(scrollView: UIScrollView) {
+        if !didAutoscroll {
+            view.endEditing(true)
+        }
+    }
+    
+    func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView)  {
+        didAutoscroll = false
+    }
+}
+
+
 

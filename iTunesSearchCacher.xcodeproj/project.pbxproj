@@ -24,6 +24,7 @@
 		F5B84FC71D41AC7D002FC782 /* DownloadMangerActiveObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B84FC61D41AC7D002FC782 /* DownloadMangerActiveObject.swift */; };
 		F5B84FC91D431E9E002FC782 /* NSFileManager+Directories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B84FC81D431E9E002FC782 /* NSFileManager+Directories.swift */; };
 		F5C2CA451D4ED5100067FB0A /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C2CA441D4ED5100067FB0A /* AudioPlayer.swift */; };
+		F5D255681D519A28003920B2 /* KeyboardObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D255671D519A28003920B2 /* KeyboardObserver.swift */; };
 		F5F51A431D31F1E700EB8135 /* SearchResultsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F51A421D31F1E700EB8135 /* SearchResultsDataSource.swift */; };
 		F5F51A571D33A07D00EB8135 /* searchCacheDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F5F51A551D33A07D00EB8135 /* searchCacheDataModel.xcdatamodeld */; };
 		F5F51A5E1D33B50500EB8135 /* ArtistEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F51A581D33B50500EB8135 /* ArtistEntity+CoreDataProperties.swift */; };
@@ -61,6 +62,7 @@
 		F5B84FC61D41AC7D002FC782 /* DownloadMangerActiveObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadMangerActiveObject.swift; sourceTree = "<group>"; };
 		F5B84FC81D431E9E002FC782 /* NSFileManager+Directories.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSFileManager+Directories.swift"; sourceTree = "<group>"; };
 		F5C2CA441D4ED5100067FB0A /* AudioPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
+		F5D255671D519A28003920B2 /* KeyboardObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardObserver.swift; sourceTree = "<group>"; };
 		F5F51A421D31F1E700EB8135 /* SearchResultsDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsDataSource.swift; sourceTree = "<group>"; };
 		F5F51A561D33A07D00EB8135 /* searchCacheDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = searchCacheDataModel.xcdatamodel; sourceTree = "<group>"; };
 		F5F51A581D33B50500EB8135 /* ArtistEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ArtistEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -122,6 +124,7 @@
 		F54BB5661D30E2F0004411A1 /* iTunesSearchCacher */ = {
 			isa = PBXGroup;
 			children = (
+				F5D255661D519A17003920B2 /* Tools */,
 				F5C2CA431D4E26D20067FB0A /* UI */,
 				F5FD035D1D3EF0C90095C92D /* WebService */,
 				F52410501D313D9F00174B89 /* Model */,
@@ -143,6 +146,14 @@
 				F58517BB1D31480C0004DB43 /* Main.storyboard */,
 			);
 			path = UI;
+			sourceTree = "<group>";
+		};
+		F5D255661D519A17003920B2 /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				F5D255671D519A28003920B2 /* KeyboardObserver.swift */,
+			);
+			name = Tools;
 			sourceTree = "<group>";
 		};
 		F5F51A461D31F3A300EB8135 /* AppManagment */ = {
@@ -267,6 +278,7 @@
 				F54BB5681D30E2F0004411A1 /* AppDelegate.swift in Sources */,
 				F5B84FC71D41AC7D002FC782 /* DownloadMangerActiveObject.swift in Sources */,
 				F56D45641D4AE2C2000186D5 /* ContentFileDownloadTask.swift in Sources */,
+				F5D255681D519A28003920B2 /* KeyboardObserver.swift in Sources */,
 				F5F51A631D33B50500EB8135 /* CollectionEntity.swift in Sources */,
 				F5FD035C1D3EEBD50095C92D /* NSManagedObjectContext+Extensions.swift in Sources */,
 				F5FD03311D38A7890095C92D /* SearchEntity+CoreDataProperties.swift in Sources */,
