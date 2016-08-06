@@ -63,3 +63,4 @@ extension SearchTermsViewController: UITableViewDelegate {
     }
     
 }
+

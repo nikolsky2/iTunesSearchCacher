@@ -5,6 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Segues with Peek and Pop" minToolsVersion="7.1"/>
     </dependencies>
     <scenes>
         <!--iTunes Search API-->
@@ -48,6 +49,8 @@
                                                         <state key="normal" title="Search history"/>
                                                         <connections>
                                                             <segue destination="876-8P-bQo" kind="popoverPresentation" identifier="SearchTermsViewControllerSegueId" popoverAnchorView="mOK-v1-SUD" id="C7k-fe-vm5">
+                                                                <segue key="commit" inheritsFrom="parent" id="any-fn-TXi"/>
+                                                                <segue key="preview" inheritsFrom="commit" id="ceA-nq-Z3t"/>
                                                                 <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES"/>
                                                             </segue>
                                                         </connections>
@@ -363,6 +366,7 @@
         <image name="settings" width="21" height="21"/>
     </resources>
     <inferredMetricsTieBreakers>
+        <segue reference="C7k-fe-vm5"/>
         <segue reference="fBM-1g-aKG"/>
     </inferredMetricsTieBreakers>
 </document>

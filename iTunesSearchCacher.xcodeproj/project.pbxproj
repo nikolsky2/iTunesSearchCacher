@@ -153,7 +153,7 @@
 			children = (
 				F5D255671D519A28003920B2 /* KeyboardObserver.swift */,
 			);
-			name = Tools;
+			path = Tools;
 			sourceTree = "<group>";
 		};
 		F5F51A461D31F3A300EB8135 /* AppManagment */ = {

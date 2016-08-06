@@ -79,6 +79,10 @@ class SearchPageViewController: UIViewController {
     override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
         
+        guard isViewLoaded() else {
+            return
+        }
+        
         scrollView.scrollIndicatorInsets.top = navBarIncludeStatusBarHeight
         view.endEditing(true)
     }
@@ -113,6 +117,7 @@ class SearchPageViewController: UIViewController {
             // Fixes popover anchor centering issue in iOS 9 
             if let popoverPresentationController = segue.destinationViewController.popoverPresentationController, sourceView = sender as? UIView {
                 popoverPresentationController.sourceRect = sourceView.bounds
+                popoverPresentationController.delegate = self
             }
             
             let navController = segue.destinationViewController as! UINavigationController
@@ -129,6 +134,10 @@ class SearchPageViewController: UIViewController {
     
     func searchTextFieldDidChange() {
         searchButton.enabled = searchTextField.text!.characters.count > 0
+    }
+    
+    func dismissPopoverController() {
+        dismissViewControllerAnimated(true, completion: nil)
     }
 }
 
@@ -155,5 +164,21 @@ extension SearchPageViewController: UIScrollViewDelegate {
     }
 }
 
-
+extension SearchPageViewController: UIPopoverPresentationControllerDelegate {
+    func presentationController(presentationController: UIPresentationController, willPresentWithAdaptiveStyle style: UIModalPresentationStyle, transitionCoordinator: UIViewControllerTransitionCoordinator?) {
+        
+        let navigationController = presentationController.presentedViewController as! UINavigationController
+        let viewController = navigationController.viewControllers.first!
+        
+        if style == .FullScreen {
+            let dismissButton = UIBarButtonItem(title: NSLocalizedString("Done", comment: "") , style: UIBarButtonItemStyle.Plain,
+                                                target: self, action: #selector(SearchPageViewController.dismissPopoverController))
+            
+            viewController.navigationItem.rightBarButtonItem = dismissButton
+            
+        } else {
+            viewController.navigationItem.rightBarButtonItem = nil
+        }
+    }
+}
 
