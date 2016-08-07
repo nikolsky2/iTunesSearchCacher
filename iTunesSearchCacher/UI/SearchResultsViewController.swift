@@ -24,7 +24,7 @@ enum AudioPreviewState {
 }
 
 struct CurrentAudioPreview {
-    let trackID: Int64
+    let trackId: Int64
     var state: AudioPreviewState
 }
 
@@ -47,7 +47,7 @@ class SearchResultsViewController: UIViewController {
     var fetchOnce = false
     
     let player = AudioPlayer()
-    var currentAudioPreview = CurrentAudioPreview(trackID: 0, state: .Finished)
+    var currentAudioPreview = CurrentAudioPreview(trackId: 0, state: .Finished)
     
     @IBOutlet private weak var contentView: UIView!
     @IBOutlet private weak var contentTableView: UITableView!
@@ -100,10 +100,28 @@ extension SearchResultsViewController: UITableViewDataSource {
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(TrackTableViewCell.className, forIndexPath: indexPath) as! TrackTableViewCell
         
-        cell.topLabel.text = dataSource[indexPath.row].topString
-        cell.bottomLabel.text = dataSource[indexPath.row].bottomString
-        cell.thumbnailView.image = dataSource[indexPath.row].trackImage
-        cell.downloadedStateView.image = UIImage(named: dataSource[indexPath.row].previewState.imageName)!
+        let model = dataSource[indexPath.row]
+        cell.topLabel.text = model.topString
+        cell.bottomLabel.text = model.bottomString
+        cell.thumbnailView.image = model.trackImage
+        
+        var image: UIImage!
+        switch model.previewState {
+        case .NotDownloaded:
+            image = UIImage(named: "downloadFile")
+        case .Downloading:
+            image = UIImage(named: "downloadingFile")
+        case .Downloaded:
+            //TODO:
+            //id -> ID
+            if currentAudioPreview.trackId == model.trackId && currentAudioPreview.state == .Playing {
+                image = UIImage(named: "pause")
+            } else {
+                image = UIImage(named: "play")
+            }
+        }
+        cell.downloadedStateView.image = image
+        cell.downloadedStateView.tintColor = view.tintColor
         
         return cell
     }
@@ -113,6 +131,7 @@ extension SearchResultsViewController: UITableViewDelegate {
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         delegate?.didSelectTrackAt(indexPath)
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        contentTableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
     }
 }
 
@@ -125,8 +144,8 @@ extension SearchResultsViewController: SearchResultsDataSourceDelegate {
         contentTableView.reloadRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
     }
     
-    func dataForAudioPreview(trackID: Int64, data: NSData) {
-        if trackID == currentAudioPreview.trackID {
+    func dataForAudioPreview(trackId: Int64, data: NSData) {
+        if trackId == currentAudioPreview.trackId {
             switch currentAudioPreview.state {
             case .Playing:
                 player.pause()
@@ -136,15 +155,18 @@ extension SearchResultsViewController: SearchResultsDataSourceDelegate {
                 currentAudioPreview.state = .Playing
             }
         } else {
-            currentAudioPreview = CurrentAudioPreview(trackID: trackID, state: .Playing)
+            currentAudioPreview = CurrentAudioPreview(trackId: trackId, state: .Playing)
             player.play(data)
         }
+        
+        contentTableView.reloadData()
     }
 }
 
 extension SearchResultsViewController: AudioPlayerPlayerDelegate {
     func audioPlayerDidFinishPlaying(player: AudioPlayer) {
         currentAudioPreview.state = .Finished
+        contentTableView.reloadData()
     }
 }
 

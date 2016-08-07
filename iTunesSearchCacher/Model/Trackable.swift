@@ -14,20 +14,10 @@ enum DownloadState: UInt {
     case NotDownloaded
     case Downloading
     case Downloaded
-    
-    var imageName: String {
-        switch self {
-        case .NotDownloaded:
-            return "downloadFile"
-        case .Downloading:
-            return "downloadingFile"
-        case .Downloaded:
-            return "downloadedFile"
-        }
-    }
 }
 
 protocol TrackViewModel: class {
+    var trackId: Int64 { get }
     var trackImage: UIImage? { get }
     var topString: String { get }
     var bottomString: String { get }
